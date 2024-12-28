@@ -1,10 +1,16 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { styled } from "styled-components";
 import { VOTE_CONTENT } from "@/app/constants/common";
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
+  const router = useRouter();
+
+  const onClick = () => {
+    router.push("/");
+  };
+
   return (
     <Container>
       <Header>
@@ -15,7 +21,7 @@ export default function Page() {
         {VOTE_CONTENT[params.votepart].map((name) => (
           <Text key={name}>{name}</Text>
         ))}
-        <Result>돌아가기</Result>
+        <Result onClick={onClick}>돌아가기</Result>
       </TextContainer>
     </Container>
   );
