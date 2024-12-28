@@ -23,8 +23,8 @@ export default function Page() {
         </span>
       </Header>
       <TextContainer votepart={params.votepart}>
-        {VOTE_CONTENT[params.votepart].map((name) => (
-          <Text key={name}>{name}</Text>
+        {VOTE_CONTENT[params.votepart].map((prop) => (
+          <Text key={prop.name}>{prop.name}</Text>
         ))}
         <Result>투표하기</Result>
         <Result onClick={() => onClick(params.votepart)}>결과보기</Result>

@@ -18,9 +18,14 @@ export default function Page() {
         {params.votepart === "TEAM" ? "" : "파트장"} 투표 결과
       </Header>
       <TextContainer votepart={params.votepart}>
-        {VOTE_CONTENT[params.votepart].map((name) => (
-          <Text key={name}>{name}</Text>
-        ))}
+        {VOTE_CONTENT[params.votepart]
+          .toSorted((a, b) => (a.voteData > b.voteData ? -1 : 1))
+          .map((prop) => (
+            <Text key={prop.name}>
+              {prop.name}
+              {prop.voteData}
+            </Text>
+          ))}
         <Result onClick={onClick}>돌아가기</Result>
       </TextContainer>
     </Container>
