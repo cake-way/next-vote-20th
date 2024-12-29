@@ -67,11 +67,11 @@ export default Header;
 const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding: 1.5rem 2rem;
 `;
 
 const Logo = styled.div`
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
 `;
@@ -84,25 +84,33 @@ const Nav = styled.div`
 const UserInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
+
+  @media (max-width: 29rem) {
+    font-size: 0.8rem;
+  }
 `;
 
 const AuthButtons = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 0.625rem;
 `;
 
 const Button = styled.button`
   background-color: #ffffff;
   color: black;
   border: none;
-  padding: 5px 10px;
-  border: 2px solid rgb(255, 108, 129);
-  border-radius: 5px;
+  padding: 0.3125rem 0.625rem;
+  border: 0.125rem solid rgb(255, 108, 129);
+  border-radius: 0.3125rem;
   cursor: pointer;
 
   &:hover {
     background-color: rgb(255, 108, 129);
     color: #ffffff;
+    transition: 0.2s;
+  }
+  @media (max-width: 29rem) {
+    font-size: 0.625rem;
   }
 `;

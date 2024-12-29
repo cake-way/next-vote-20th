@@ -35,13 +35,20 @@ export default function Page() {
 const Container = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  margin-top: 20px;
   flex-direction: column;
   width: 100%;
   height: 100vh;
 `;
 const Header = styled.h1`
   margin-bottom: 2rem;
+
+  @media (max-width: 64rem) {
+    font-size: 1.8rem; 
+  }
+  @media (max-width: 48rem) {
+    font-size: 1.5rem; 
+  }
 `;
 const Text = styled.p`
   border: 0.3rem solid #ff6c81;
@@ -51,6 +58,14 @@ const Text = styled.p`
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+  }
+    
+  @media (max-width: 64rem) {
+    padding: 1.5rem;
+  }
+  @media (max-width: 48rem) {
+    padding: 1rem;
+    font-size: 0.8rem;
   }
 `;
 
