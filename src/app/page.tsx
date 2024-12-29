@@ -37,13 +37,25 @@ export default function Home() {
 const Container = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+
+  margin-top: 9.375rem;
+  @media (max-height: 50rem) {
+    margin-top: 1.875rem; 
+  }
+
   flex-direction: column;
   width: 100%;
   height: 100vh;
 `;
 const Header = styled.h1`
   margin-bottom: 2rem;
+
+  @media (max-width: 48rem) {
+    font-size: 1.6rem; 
+  }
+  @media (max-width: 29.6875rem) {
+    font-size: 1.3rem;
+  }
 `;
 const TextContainer = styled.div`
   display: flex;
@@ -58,5 +70,12 @@ const Text = styled.p`
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+  }
+    
+  @media (max-width: 48rem) {
+    padding: 1.5rem; 
+  }
+  @media (max-width: 29.6875rem) {
+    padding: 1rem;
   }
 `;

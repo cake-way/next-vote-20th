@@ -36,19 +36,28 @@ export default function Page() {
 const Container = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  margin-top: 1.875rem;
 `;
 const Header = styled.h1`
   margin-bottom: 2rem;
   display: flex;
   gap: 1rem;
+
+  @media (max-width: 64rem) {
+    font-size: 1.8rem;
+  }
+  @media (max-width: 48rem) {
+    font-size: 1.5rem; 
+  }
 `;
+
 const BackIcon = styled.span`
   color: #ff6c81;
 `;
+
 const Text = styled.p`
   border: 0.3rem solid #ff6c81;
   border-radius: 0.3rem;
@@ -57,6 +66,14 @@ const Text = styled.p`
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+  }
+
+  @media (max-width: 64rem) {
+    padding: 1.5rem;
+  }
+  @media (max-width: 48rem) {
+    padding: 1rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -77,5 +94,10 @@ const Result = styled.button`
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+  }
+    
+  @media (max-height: 500rem) {
+    padding: 0.2rem;
+    font-size: 0.8rem;
   }
 `;
