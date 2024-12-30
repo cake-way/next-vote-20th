@@ -38,7 +38,7 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 8rem);
   margin-top: 1.875rem;
 `;
 const Header = styled.h1`
@@ -46,11 +46,11 @@ const Header = styled.h1`
   display: flex;
   gap: 1rem;
 
-  @media (max-width: 64rem) {
+  /* @media (min-width: 64rem) {
     font-size: 1.8rem;
-  }
+  } */
   @media (max-width: 48rem) {
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
   }
 `;
 
@@ -61,18 +61,20 @@ const BackIcon = styled.span`
 const Text = styled.p`
   border: 0.3rem solid #ff6c81;
   border-radius: 0.3rem;
-  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
   text-align: center;
+  padding: 1rem;
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
   }
-
-  @media (max-width: 64rem) {
-    padding: 1.5rem;
+  @media (min-width: 64rem) {
+    padding: 1.2rem;
   }
   @media (max-width: 48rem) {
-    padding: 1rem;
     font-size: 0.8rem;
   }
 `;
@@ -84,18 +86,22 @@ const TextContainer = styled.div<{ votepart: string }>`
       : "grid"}; //{name}/ 함수식으로 해야props가 변경될 때마다 함수가 재실행되어 새로운 값을 계산
   grid-template-columns: repeat(2, 1fr);
   flex-direction: column;
+  justify-content: stretch;
   gap: 1rem;
+  flex: 1;
+  margin-bottom: 1rem;
 `;
 
 const Result = styled.button`
   background-color: transparent;
   border: 0.2rem solid #ff6c81;
   padding: 0.3rem;
+  color: white;
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
   }
-    
+
   @media (max-height: 500rem) {
     padding: 0.2rem;
     font-size: 0.8rem;
