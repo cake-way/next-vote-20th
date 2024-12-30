@@ -1,5 +1,5 @@
 interface Votedata {
-  voteId: string;
+  vote_id: string;
   user_id: string;
   leader_id: string;
 }
@@ -37,8 +37,12 @@ export async function submitVote(data: Votedata) {
   }
 }
 
-export const submitVoteWrapper = (data: Votedata) => {
-  submitVote(data);
+export const submitVoteWrapper = (
+  vote_id: string,
+  user_id: string,
+  leader_id: string
+) => {
+  submitVote({ vote_id, user_id, leader_id }); // 객체로 전달 후 한번에 받을 수 있음
 };
 
 export const getVoteResult = async () => {

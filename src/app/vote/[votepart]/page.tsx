@@ -2,17 +2,37 @@
 import { useParams, useRouter } from "next/navigation";
 import { styled } from "styled-components";
 import { VOTE_CONTENT } from "@/app/constants/common";
+import { useStore } from "@/stores/useVote";
+import { useState } from "react";
+import { submitVoteWrapper } from "@/app/lib/api";
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
+  const [clicked, setClicked] = useState("");
+  const { setUserId, setVoteId, setLeaderId, user_id, leader_id, vote_id } =
+    useStore();
+
   const onClick = (a: string) => {
     router.push(`result/${a}`);
   };
   const backClicked = () => {
     router.back();
   };
+  const onLeaderClicked = (name: string) => {
+    setClicked(name);
+  };
+  const onVoteCliced = () => {
+    console.log("user_id:" + user_id, "leader_id:" + leader_id);
+    setUserId("지민재"); //현재 유저로 바꾸기
+    setLeaderId(clicked);
+    setVoteId(new Date().toLocaleDateString());
+    submitVoteWrapper(vote_id, user_id, leader_id);
 
+    router.push(`result/${params.votepart}`);
+  };
+
+  //결과화면이랑 중복되는건 컴포넌트로 만들기
   return (
     <Container>
       <Header>
@@ -24,9 +44,15 @@ export default function Page() {
       </Header>
       <TextContainer votepart={params.votepart}>
         {VOTE_CONTENT[params.votepart].map((prop) => (
-          <Text key={prop.name}>{prop.name}</Text>
+          <Text
+            onClick={() => onLeaderClicked(prop.name)}
+            key={prop.name}
+            $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
+          >
+            {prop.name}
+          </Text>
         ))}
-        <Result>투표하기</Result>
+        <Result onClick={onVoteCliced}>투표하기</Result>
         <Result onClick={() => onClick(params.votepart)}>결과보기</Result>
       </TextContainer>
     </Container>
@@ -58,7 +84,7 @@ const BackIcon = styled.span`
   color: #ff6c81;
 `;
 
-const Text = styled.p`
+const Text = styled.p<{ $isActive: boolean }>`
   border: 0.3rem solid #ff6c81;
   border-radius: 0.3rem;
   display: flex;
@@ -67,10 +93,12 @@ const Text = styled.p`
   flex: 1;
   text-align: center;
   padding: 1rem;
+  background-color: ${({ $isActive }) => $isActive && "#ff6c81"};
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
   }
+
   @media (min-width: 64rem) {
     padding: 1.2rem;
   }
