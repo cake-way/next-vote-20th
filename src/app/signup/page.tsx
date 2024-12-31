@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import styled from "styled-components";
+
 import { Button, FormContainer, Layout, Title } from "../login/page";
+import { validatePassword } from "../lib/validate";
+import InputField from "@/components/signup/InputField";
+import SelectField from "@/components/signup/SelectField";
 
 const SignUp: React.FC = () => {
 
-  const [passwordVisibility, setPasswordVisibility] = useState({
-    password: false,
-    confirmPassword: false,
-  });
+const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
+  password: false,
+  confirmPassword: false,
+});
 
   const [formData, setFormData] = useState<Record<string, string>>({
     name: "",
@@ -25,37 +28,6 @@ const SignUp: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
-
-  const validatePassword = (password: string) => { // 유효성 검사
-    const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$/;
-    const containsKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-
-    if (!password) {
-      return ""; // 비어 있을 경우 에러 메시지 지움
-    }
-
-    if (containsKorean.test(password)) {
-      return "비밀번호에 한글을 포함할 수 없습니다.";
-    }
-
-    if (password.length < 8 || password.length > 12) {
-      return "비밀번호는 8~12자리여야 합니다.";
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      return "비밀번호에 최소 1개의 대문자가 포함되어야 합니다.";
-    }
-
-    if (!/[!@#$%^&*]/.test(password)) {
-      return "비밀번호에 최소 1개의 특수문자가 포함되어야 합니다.";
-    }
-
-    if (!regex.test(password)) {
-      return "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.";
-    }
-
-    return "";
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -81,6 +53,14 @@ const SignUp: React.FC = () => {
     }
   };
 
+  
+  const handlePasswordToggle = (field: "password" | "confirmPassword") => {
+    setPasswordVisibility((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -100,13 +80,6 @@ const SignUp: React.FC = () => {
     }
 
     console.log("회원가입 성공:", formData);
-  };
-
-  const handlePasswordToggle = (field: "password" | "confirmPassword") => {
-    setPasswordVisibility((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
   };
 
   const inputFields = [
@@ -136,50 +109,28 @@ const SignUp: React.FC = () => {
     <Layout>
       <Title>회원가입</Title>
       <FormContainer onSubmit={handleSubmit}>
-        {inputFields.map((field) => (
-          <InputWrapper key={field.name}>
-            <Input
-              type={field.type}
-              name={field.name}
-              placeholder={field.placeholder}
-              value={formData[field.name]}
-              onChange={handleInputChange}
-            />
-            {field.isPassword && (
-              <PasswordContainer>
-                <ToggleButton
-                  onClick={() =>
-                    handlePasswordToggle(field.name as "password" | "confirmPassword")
-                  }
-                >
-                  {passwordVisibility[field.name as "password" | "confirmPassword"]
-                    ? "숨기기"
-                    : "보기"}
-                </ToggleButton>
-              </PasswordContainer>
-            )}
-            {field.name === "password" && errorMessages.password && (
-              <ErrorText>{errorMessages.password}</ErrorText>
-            )}
-            {field.name === "confirmPassword" && errorMessages.confirmPassword && (
-              <ErrorText>{errorMessages.confirmPassword}</ErrorText>
-            )}
-          </InputWrapper>
+      {inputFields.map((field) => (
+          <InputField
+            key={field.name}
+            name={field.name}
+            type={field.isPassword ? (passwordVisibility[field.name] ? "text" : "password") : field.type}
+            placeholder={field.placeholder}
+            value={formData[field.name]}
+            onChange={handleInputChange}
+            errorMessage={field.name === "password" ? errorMessages.password : field.name === "confirmPassword" ? errorMessages.confirmPassword : ""}
+            isPassword={field.isPassword}
+            togglePasswordVisibility={() => handlePasswordToggle(field.name as "password" | "confirmPassword")}
+          />
         ))}
 
         {Object.keys(selectOptions).map((key) => (
-          <Select
+          <SelectField
             key={key}
             name={key === "team" ? "selectedTeam" : "selectedPart"}
             value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
+            options={selectOptions[key]}
             onChange={handleInputChange}
-          >
-            {selectOptions[key].map((option, idx) => (
-              <option key={idx} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
+          />
         ))}
 
         <Button type="submit">회원가입</Button>
@@ -189,57 +140,3 @@ const SignUp: React.FC = () => {
 };
 
 export default SignUp;
-
-const InputWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
-const ErrorText = styled.p`
-  color: red;
-  font-size: 0.75rem;
-  margin-top: -0.3125rem; 
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.9375rem;
-  margin-bottom: 1rem;
-  border: none;
-  border-bottom: 0.125rem solid rgb(255, 108, 129);
-  outline: none;
-  font-size: 1rem;
-`;
-
-const PasswordContainer = styled.div`
-  position: absolute;
-  right: 0.625rem;
-  top: 2.1875rem;
-`;
-
-const ToggleButton = styled.button`
-  background: none;
-  width: 3.125rem;
-  position: absolute;
-  bottom: 0;
-  right: 0.3125rem;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  font-size: 0.875rem;
-  &:hover {
-    color: rgb(255, 108, 129);
-    transition: 0.2s;
-  }
-`;
-
-const Select = styled.select`
-  width: 45%;
-  padding: 0.9375rem;
-  margin: 0.3125rem;
-  border: 0.125rem solid rgb(255, 108, 129);
-  border-radius: 0.3125rem;
-  font-size: 1rem;
-  background-color: white;
-  outline: none;
-`;
