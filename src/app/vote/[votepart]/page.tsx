@@ -4,7 +4,7 @@ import { styled } from "styled-components";
 import { VOTE_CONTENT } from "@/app/constants/common";
 import { useStore } from "@/stores/useVote";
 import { useState } from "react";
-import { submitVoteWrapper } from "@/app/lib/api";
+import { fetchPostVote } from "@/app/lib/api";
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
@@ -27,7 +27,7 @@ export default function Page() {
     setUserId("지민재"); //현재 유저로 바꾸기
     setLeaderId(clicked);
     setVoteId(new Date().toLocaleDateString());
-    submitVoteWrapper(vote_id, user_id, leader_id);
+    fetchPostVote({ vote_id, user_id, leader_id });
 
     router.push(`result/${params.votepart}`);
   };
