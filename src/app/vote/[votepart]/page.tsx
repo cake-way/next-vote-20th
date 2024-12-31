@@ -10,8 +10,7 @@ export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
   const [clicked, setClicked] = useState("");
-  const { setUserId, setVoteId, setLeaderId, user_id, leader_id, vote_id } =
-    useStore();
+  const { setUserId, setVoteId, setLeaderId, user_id, leader_id } = useStore();
 
   const onClick = (a: string) => {
     router.push(`result/${a}`);
@@ -22,17 +21,30 @@ export default function Page() {
   const onLeaderClicked = (name: string) => {
     setClicked(name);
   };
-  const onVoteCliced = () => {
+
+  const onVoteCliced = async () => {
     console.log("user_id:" + user_id, "leader_id:" + leader_id);
-    setUserId("지민재"); //현재 유저로 바꾸기
-    setLeaderId(clicked);
-    setVoteId(new Date().toLocaleDateString());
-    fetchPostVote({ vote_id, user_id, leader_id });
+    try {
+      setUserId("지민재"); // 현재 유저로 바꾸기
+      setLeaderId(clicked);
+      const newVoteId = new Date().toLocaleDateString();
+      setVoteId(newVoteId);
 
-    router.push(`result/${params.votepart}`);
+      // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
+      await fetchPostVote({
+        vote_id: newVoteId,
+        user_id: "지민재", // 하드코딩된 값 사용
+        leader_id: clicked,
+      });
+
+      router.push(`result/${params.votepart}`);
+    } catch (error) {
+      console.error("투표 제출 실패:", error);
+      // 에러 처리 필요
+    }
   };
-
   //결과화면이랑 중복되는건 컴포넌트로 만들기
+
   return (
     <Container>
       <Header>
