@@ -1,32 +1,66 @@
 "use client";
 
+import Router from "next/router";
 import { useState } from "react";
 import styled from "styled-components";
+import { apiRequest } from "../lib/api";
 
 const Login: React.FC = () => {
+    const [userId, setUserId] = useState(""); // 아이디 상태
+    const [password, setPassword] = useState(""); // 비밀번호 상태
+    const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
 
-  const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
-    return(
+
+    // 로그인 요청 함수
+    const handleLogin = async () => {
+        try {
+            const response = await apiRequest("auth", "POST", {
+                username: userId,
+                password: password,
+            }, "login");
+
+            // 요청 성공 시 처리
+            console.log("로그인 성공:", response);
+            alert("로그인 성공!"); // 예시로 alert 표시
+            localStorage.setItem('token', response.token); // 응답 dto 생성 필요
+        } catch (error: unknown) { // error를 unknown으로 지정
+            if (error instanceof Error) { // Error 객체인지 확인
+                console.error("로그인 실패:", error.message); 
+                Router.push('/signup'); // 이게 사용자를 찾을 수 없음인지 확인 필요
+            } else {
+                console.error("예기치 못한 오류:", error);
+            }
+        }
+    };
+
+    return (
         <Layout>
             <Title>로그인</Title>
             <FormContainer>
-                <Input type="text" placeholder="아이디" />
+                <Input
+                    type="text"
+                    placeholder="아이디"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)} // 상태 업데이트
+                />
                 <PasswordContainer>
                     <Input
-                        type={showPassword ? "text" : "password"} // 조건에 따라 type 변경
+                        type={showPassword ? "text" : "password"}
                         placeholder="비밀번호"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)} // 상태 업데이트
                     />
                     <ToggleButton
-                        onClick={() => setShowPassword(!showPassword)} // 클릭 시 상태 변경
+                      onClick={() => setShowPassword(!showPassword)}
                     >
-                        {showPassword ? "숨기기" : "보기"} {/* 버튼 텍스트 변경 */}
+                    {showPassword ? "숨기기" : "보기"}
                     </ToggleButton>
                 </PasswordContainer>
-                <Button>로그인</Button>
+                <Button onClick={handleLogin}>로그인</Button> {/* 로그인 버튼 */}
             </FormContainer>
         </Layout>
-    )
-}
+    );
+};
 
 export default Login;
 
@@ -36,15 +70,14 @@ const Layout = styled.div`
     flex-direction: column;
     align-items: center;
     height: 100vh;
-
     margin-top: 9.375rem;
     @media (max-height: 48rem) {
         margin-top: 30%;
     }
 `;
+
 export const Title = styled.h1`
     margin-bottom: 1.5rem;
-
     @media (max-width: 64rem) {
         font-size: 1.8rem;
     }
@@ -52,18 +85,17 @@ export const Title = styled.h1`
         font-size: 1.5rem; 
     }
 `;
+
 export const FormContainer = styled.div`
     padding: 4.375rem 3rem 1.25rem 3rem;
     border-radius: 1.25rem;
     border: 0.1875rem solid rgb(255, 108, 129);
     text-align: center;
     width: 37.5rem; /* 기본 고정 너비 */
-
     @media (max-width: 37.5rem) {
         width: 90%; /* 600px 이하에서 화면 크기에 따라 유동적으로 줄어듦 */
         padding: 3.125rem 1.875rem 1rem 1.875rem; /* 여백 유지 */
     }
-
     @media (max-width: 25rem) {
         width: 80%; /* 400px 이하에서 더 작아짐 */
         padding: 2.5rem 1.25rem 0.75rem 1.25rem; /* 여백도 줄어듦 */
@@ -79,6 +111,7 @@ const Input = styled.input`
     outline: none;
     font-size: 1rem;
 `;
+
 const PasswordContainer = styled.div`
     display: flex;
     align-items: center;
@@ -95,11 +128,10 @@ const ToggleButton = styled.button`
     cursor: pointer;
     font-size: 0.875rem;
     &:hover {
-        color:rgb(255, 108, 129);
+        color: rgb(255, 108, 129);
         transition: 0.2s;
     }
 `;
-
 
 export const Button = styled.button`
     width: 30%;
@@ -111,9 +143,8 @@ export const Button = styled.button`
     border-radius: 0.9375rem;
     font-size: 1rem;
     cursor: pointer;
-
     &:hover {
-        background-color:rgb(255, 108, 129);
+        background-color: rgb(255, 108, 129);
         color: #ffffff;
         font-weight: 600;
         transition: 0.2s;
@@ -122,7 +153,7 @@ export const Button = styled.button`
         width: 30%;
         padding: 0.625rem;
     }
-    @media (max-width: 29.6875rem){
+    @media (max-width: 29.6875rem) {
         width: 40%;
         padding: 0.4375rem;
         margin-top: 1.875rem;
