@@ -30,7 +30,7 @@ const Login: React.FC = () => {
 
 export default Login;
 
-export const Layout = styled.div`
+const Layout = styled.div`
     display: flex;
     background-color: #ffffff;
     flex-direction: column;
@@ -126,5 +126,6 @@ export const Button = styled.button`
         width: 40%;
         padding: 0.4375rem;
         margin-top: 1.875rem;
+        font-size: 0.8rem;
     }
 `;

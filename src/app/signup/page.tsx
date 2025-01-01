@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 
-import { Button, FormContainer, Layout, Title } from "../login/page";
+import { Button, FormContainer, Title } from "../login/page";
 import { validatePassword } from "../lib/validate";
 import InputField from "@/components/signup/InputField";
 import SelectField from "@/components/signup/SelectField";
+import styled from "styled-components";
 
 const SignUp: React.FC = () => {
 
@@ -109,29 +110,29 @@ const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: bo
     <Layout>
       <Title>회원가입</Title>
       <FormContainer onSubmit={handleSubmit}>
-      {inputFields.map((field) => (
-          <InputField
-            key={field.name}
-            name={field.name}
-            type={field.isPassword ? (passwordVisibility[field.name] ? "text" : "password") : field.type}
-            placeholder={field.placeholder}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            errorMessage={field.name === "password" ? errorMessages.password : field.name === "confirmPassword" ? errorMessages.confirmPassword : ""}
-            isPassword={field.isPassword}
-            togglePasswordVisibility={() => handlePasswordToggle(field.name as "password" | "confirmPassword")}
-          />
-        ))}
+        {inputFields.map((field) => (
+            <InputField
+              key={field.name}
+              name={field.name}
+              type={field.isPassword ? (passwordVisibility[field.name] ? "text" : "password") : field.type}
+              placeholder={field.placeholder}
+              value={formData[field.name]}
+              onChange={handleInputChange}
+              errorMessage={field.name === "password" ? errorMessages.password : field.name === "confirmPassword" ? errorMessages.confirmPassword : ""}
+              isPassword={field.isPassword}
+              togglePasswordVisibility={() => handlePasswordToggle(field.name as "password" | "confirmPassword")}
+            />
+          ))}
 
-        {Object.keys(selectOptions).map((key) => (
-          <SelectField
-            key={key}
-            name={key === "team" ? "selectedTeam" : "selectedPart"}
-            value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
-            options={selectOptions[key]}
-            onChange={handleInputChange}
-          />
-        ))}
+          {Object.keys(selectOptions).map((key) => (
+            <SelectField
+              key={key}
+              name={key === "team" ? "selectedTeam" : "selectedPart"}
+              value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
+              options={selectOptions[key]}
+              onChange={handleInputChange}
+            />
+          ))}
 
         <Button type="submit">회원가입</Button>
       </FormContainer>
@@ -140,3 +141,16 @@ const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: bo
 };
 
 export default SignUp;
+
+const Layout = styled.div`
+    display: flex;
+    background-color: #ffffff;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+
+    margin-top: 9.375rem;
+    @media (max-height: 48rem) {
+        margin-top: 10%;
+    }
+`;
