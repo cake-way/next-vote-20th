@@ -7,10 +7,11 @@ interface Votedata {
 // 기본적인 fetch 요청 함수
 const fetchData = async (
   url: string,
-  method: string = "GET",
+  method: string,
   body: Record<string, unknown> | null = null
 ) => {
-  // body 타입을 Record<string, unknown>으로 지정
+
+  console.log("Fetch called with:", { url, method, body });
   const response = await fetch(url, {
     method,
     headers: {
@@ -18,6 +19,7 @@ const fetchData = async (
     },
     body: body ? JSON.stringify(body) : null,
   });
+  console.log("Response status:", response.status);
 
   if (!response.ok) {
     // 에러 처리
@@ -31,9 +33,9 @@ const fetchData = async (
 export const apiRequest = async (
   domain: string,
   method: string = "GET",
-  body: Record<string, unknown> | null = null
+  body: Record<string, unknown> | null = null,
+  endpoint: string = "", 
 ) => {
-  // body 타입을 Record<string, unknown>으로 지정
   // 도메인별 기본 URL 설정
   let baseUrl = "";
 
@@ -51,11 +53,14 @@ export const apiRequest = async (
       throw new Error("Unknown domain");
   }
 
+  // 완전한 URL 생성 (baseUrl + endpoint)
+  const fullUrl = endpoint ? `${baseUrl}/${endpoint}` : baseUrl;
+
   // 메서드에 따른 처리
   if (method === "POST") {
-    return fetchData(baseUrl, "POST", body);
+    return fetchData(fullUrl, "POST", body);
   } else if (method === "GET") {
-    return fetchData(baseUrl, "GET");
+    return fetchData(fullUrl, "GET");
   } else {
     throw new Error("Unsupported HTTP method");
   }
@@ -92,16 +97,3 @@ export const fetchPostVote = async ({
   }
 };
 
-//후보자 조회 GET요청
-
-// 회원가입을 위한 POST 요청 예시시
-{
-  /*const handleSignUp = async (userData) => {
-    try {
-      const result = await apiRequest("auth", "POST", userData);
-      console.log("회원가입 성공", result);
-    } catch (error) {
-      console.error("회원가입 실패", error);
-    }
-  };*/
-}

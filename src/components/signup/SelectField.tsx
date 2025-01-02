@@ -28,4 +28,13 @@ const Select = styled.select`
   font-size: 1rem;
   background-color: white;
   outline: none;
+
+  @media (max-width: 29.6875rem){
+    padding: 0.5rem;
+    font-size: 0.5rem;
+  }
+  @media (max-width: 50rem){
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
 `;

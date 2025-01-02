@@ -1,50 +1,90 @@
 "use client";
 
+//import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styled from "styled-components";
+import { apiRequest } from "../lib/api";
 
 const Login: React.FC = () => {
 
-  const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
-    return(
+    const [userId, setUserId] = useState(""); // 아이디 상태
+    const [password, setPassword] = useState(""); // 비밀번호 상태
+    const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
+
+    // 로그인 요청 함수
+    const handleLogin = async () => {
+        try {
+          const response = await apiRequest("auth", "POST", {
+            username: userId,
+            password: password,
+          }, "login");
+
+          console.log(response);
+      
+          // 응답에서 'data'와 'token'을 확인
+            if (response.data && response.data.token) {
+                console.log("로그인 성공:", response);
+                localStorage.setItem("token", response.data.token); // 응답에서 token을 로컬스토리지에 저장
+                alert("로그인 성공!");
+            } else {
+                console.error("로그인 실패: 토큰이 응답에 없습니다.");
+                alert("로그인 실패: 토큰이 응답에 없습니다.");
+            }
+            } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("로그인 실패:", error.message);
+                alert("로그인 실패 ㅋㅋ!");
+            } else {
+                console.error("예기치 못한 오류:", error);
+            }
+            }
+        };
+
+    return (
         <Layout>
             <Title>로그인</Title>
             <FormContainer>
-                <Input type="text" placeholder="아이디" />
+                <Input
+                    type="text"
+                    placeholder="아이디"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)} // 상태 업데이트
+                />
                 <PasswordContainer>
                     <Input
-                        type={showPassword ? "text" : "password"} // 조건에 따라 type 변경
+                        type={showPassword ? "text" : "password"}
                         placeholder="비밀번호"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)} // 상태 업데이트
                     />
                     <ToggleButton
-                        onClick={() => setShowPassword(!showPassword)} // 클릭 시 상태 변경
+                      onClick={() => setShowPassword(!showPassword)}
                     >
-                        {showPassword ? "숨기기" : "보기"} {/* 버튼 텍스트 변경 */}
+                    {showPassword ? "숨기기" : "보기"}
                     </ToggleButton>
                 </PasswordContainer>
-                <Button>로그인</Button>
+                <Button onClick={handleLogin}>로그인</Button> {/* 로그인 버튼 */}
             </FormContainer>
         </Layout>
-    )
-}
+    );
+};
 
 export default Login;
 
-export const Layout = styled.div`
+const Layout = styled.div`
     display: flex;
     background-color: #ffffff;
     flex-direction: column;
     align-items: center;
     height: 100vh;
-
     margin-top: 9.375rem;
     @media (max-height: 48rem) {
         margin-top: 30%;
     }
 `;
+
 export const Title = styled.h1`
     margin-bottom: 1.5rem;
-
     @media (max-width: 64rem) {
         font-size: 1.8rem;
     }
@@ -52,18 +92,17 @@ export const Title = styled.h1`
         font-size: 1.5rem; 
     }
 `;
-export const FormContainer = styled.div`
+
+export const FormContainer = styled.form`
     padding: 4.375rem 3rem 1.25rem 3rem;
     border-radius: 1.25rem;
     border: 0.1875rem solid rgb(255, 108, 129);
     text-align: center;
     width: 37.5rem; /* 기본 고정 너비 */
-
     @media (max-width: 37.5rem) {
         width: 90%; /* 600px 이하에서 화면 크기에 따라 유동적으로 줄어듦 */
         padding: 3.125rem 1.875rem 1rem 1.875rem; /* 여백 유지 */
     }
-
     @media (max-width: 25rem) {
         width: 80%; /* 400px 이하에서 더 작아짐 */
         padding: 2.5rem 1.25rem 0.75rem 1.25rem; /* 여백도 줄어듦 */
@@ -79,6 +118,7 @@ const Input = styled.input`
     outline: none;
     font-size: 1rem;
 `;
+
 const PasswordContainer = styled.div`
     display: flex;
     align-items: center;
@@ -95,11 +135,10 @@ const ToggleButton = styled.button`
     cursor: pointer;
     font-size: 0.875rem;
     &:hover {
-        color:rgb(255, 108, 129);
+        color: rgb(255, 108, 129);
         transition: 0.2s;
     }
 `;
-
 
 export const Button = styled.button`
     width: 30%;
@@ -111,9 +150,8 @@ export const Button = styled.button`
     border-radius: 0.9375rem;
     font-size: 1rem;
     cursor: pointer;
-
     &:hover {
-        background-color:rgb(255, 108, 129);
+        background-color: rgb(255, 108, 129);
         color: #ffffff;
         font-weight: 600;
         transition: 0.2s;
@@ -122,9 +160,10 @@ export const Button = styled.button`
         width: 30%;
         padding: 0.625rem;
     }
-    @media (max-width: 29.6875rem){
+    @media (max-width: 29.6875rem) {
         width: 40%;
         padding: 0.4375rem;
         margin-top: 1.875rem;
+        font-size: 0.8rem;
     }
 `;
