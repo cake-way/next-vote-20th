@@ -58,10 +58,12 @@ export const apiRequest = async (
 
   // 메서드에 따른 처리
   if (method === "POST") {
-    return fetchData(fullUrl, "POST", body);
-  } else if (method === "GET") {
+    return fetchData(fullUrl, method, body);
+  } 
+  else if (method === "GET") {
     return fetchData(fullUrl, "GET");
-  } else {
+  } 
+  else {
     throw new Error("Unsupported HTTP method");
   }
 };

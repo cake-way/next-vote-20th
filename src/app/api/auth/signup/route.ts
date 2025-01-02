@@ -25,15 +25,18 @@ export async function POST(req: Request) {
     
     const contentType = response.headers.get('Content-Type');
     let responseBody;
+
     if (contentType && contentType.includes('application/json')) {
       responseBody = await response.json();
-    } else {
+    } 
+    else {
       responseBody = await response.text(); // JSON이 아닌 경우 처리
     }
+
     console.log("백엔드 응답:", responseBody);
     return NextResponse.json({ success: true, data: responseBody });
-  
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("에러 발생:", error);
     return NextResponse.json({ success: false, error: "서버 요청 실패" }, { status: 500 });
   }

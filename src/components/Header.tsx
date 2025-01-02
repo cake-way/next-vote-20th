@@ -1,66 +1,45 @@
 "use client"
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import styled from "styled-components";
 import Image from "next/image"; 
+import styled from "styled-components";
 
-const Header:React.FC = () => {
-  const [user, setUser] = useState<{ name: string } | null>(null);
+import { useAuthStore } from "@/stores/useAuth";
+
+const Header: React.FC = () => {
   const router = useRouter();
+  const { username, isLoggedIn, logout } = useAuthStore(); // 전역 상태 가져오기
 
-   // 초기 렌더링 시 로컬 스토리지에서 유저 정보를 가져오기
-   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // 로컬 스토리지에 값이 없으면, 기본 유저 데이터 저장 -> test를 위해 임시로 설정
-      const defaultUser = { name: "FE 지민재" };
-      localStorage.setItem("user", JSON.stringify(defaultUser));
-      setUser(defaultUser);
-    }
-  }, []);
-
-  const handleLoginClick = () => {
-    router.push("/login");
-  };
-
-  const handleSignupClick = () => {
-    router.push("/signup");
-  };
-
-  const handleLogoutClick = () => {
-    // 로그아웃 시 로컬 스토리지에서 유저 정보 제거
-    localStorage.removeItem("user");
-    setUser(null);
+  const handleLogoutButtonClick = () => {
+    localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
+    logout();
   };
 
   const handleLogoClick = () => {
-    router.push("/");  // 홈 페이지로 이동
+    router.push("/"); 
   };
 
   return (
     <HeaderContainer>
-        <Logo onClick={handleLogoClick}>
-            <Image src="/logo.svg" width={100} height={40}  alt="Logo" />
-        </Logo>
-        <Nav>
-            {user ? (
-            <UserInfo>
-                <span>{user.name}</span>
-                <Button onClick={handleLogoutClick}>로그아웃</Button>
-            </UserInfo>
-            ) : (
-            <AuthButtons>
-                <Button onClick={handleLoginClick}>로그인</Button>
-                <Button onClick={handleSignupClick}>회원가입</Button>
-            </AuthButtons>
-            )}
-        </Nav>
+      <Logo onClick={handleLogoClick}>
+        <Image src="/logo.svg" width={100} height={40} alt="Logo" />
+      </Logo>
+      <Nav>
+        {isLoggedIn ? (
+          <UserInfo>
+            <span>{username}</span>
+            <Button onClick={handleLogoutButtonClick}>로그아웃</Button>
+          </UserInfo>
+        ) : (
+          <AuthButtons>
+            <Button onClick={() => router.push("/login")}>로그인</Button>
+            <Button onClick={() => router.push("/signup")}>회원가입</Button>
+          </AuthButtons>
+        )}
+      </Nav>
     </HeaderContainer>
   );
-}
+};
 
 export default Header;
 
