@@ -1,15 +1,15 @@
 "use client";
 
-import Router from "next/router";
+//import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styled from "styled-components";
 import { apiRequest } from "../lib/api";
 
 const Login: React.FC = () => {
+
     const [userId, setUserId] = useState(""); // 아이디 상태
     const [password, setPassword] = useState(""); // 비밀번호 상태
     const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
-
 
     // 로그인 요청 함수
     const handleLogin = async () => {
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
         } catch (error: unknown) { // error를 unknown으로 지정
             if (error instanceof Error) { // Error 객체인지 확인
                 console.error("로그인 실패:", error.message); 
-                Router.push('/signup'); // 이게 사용자를 찾을 수 없음인지 확인 필요
+                alert("로그인 실패 ㅋㅋ!");
             } else {
                 console.error("예기치 못한 오류:", error);
             }
@@ -86,7 +86,7 @@ export const Title = styled.h1`
     }
 `;
 
-export const FormContainer = styled.div`
+export const FormContainer = styled.form`
     padding: 4.375rem 3rem 1.25rem 3rem;
     border-radius: 1.25rem;
     border: 0.1875rem solid rgb(255, 108, 129);

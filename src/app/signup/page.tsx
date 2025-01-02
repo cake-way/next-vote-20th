@@ -1,6 +1,6 @@
 "use client";
 
-import Router from "next/router";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 
@@ -12,6 +12,8 @@ import { validatePassword } from "../lib/validate";
 import { apiRequest } from "../lib/api";
 
 const SignUp: React.FC = () => {
+  const router = useRouter();
+
   const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
     password: false,
     confirmPassword: false,
@@ -98,18 +100,18 @@ const SignUp: React.FC = () => {
         team: selectedTeam.toUpperCase(), // "PHOTOGROUND"처럼 모두 대문자로 변환
       };
 
-      const response = await apiRequest("signup", "POST", requestBody, "signup");
+      const response = await apiRequest("auth", "POST", requestBody, "signup");
 
       alert("회원가입이 성공적으로 완료되었습니다!"); // 모달 만들 필요성 있음
       console.log("회원가입 성공:", response);
-      Router.push("/login"); 
+      router.push("/login"); 
 
       // login 페이지에서 token 발급 받기 위함, 이것이 회원가입 시 발급 되면 별도의 페이지 이동 없이 token 발급 후 다른 api 요청 가능할 듯
       // -> 추후 cakeway 협업에서는 이런 응답 내용에 있어 백과 소통 필요
     } catch (error) {
       console.error("회원가입 실패:", error);
       alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
-      Router.push("/");
+      router.push("/");
     }
   };
 

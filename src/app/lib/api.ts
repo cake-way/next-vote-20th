@@ -7,10 +7,11 @@ interface Votedata {
 // 기본적인 fetch 요청 함수
 const fetchData = async (
   url: string,
-  method: string = "GET",
+  method: string,
   body: Record<string, unknown> | null = null
 ) => {
-  // body 타입을 Record<string, unknown>으로 지정
+
+  console.log("Fetch called with:", { url, method, body });
   const response = await fetch(url, {
     method,
     headers: {
@@ -18,6 +19,7 @@ const fetchData = async (
     },
     body: body ? JSON.stringify(body) : null,
   });
+  console.log("Response status:", response.status);
 
   if (!response.ok) {
     // 에러 처리
@@ -34,7 +36,6 @@ export const apiRequest = async (
   body: Record<string, unknown> | null = null,
   endpoint: string = "", 
 ) => {
-  // body 타입을 Record<string, unknown>으로 지정
   // 도메인별 기본 URL 설정
   let baseUrl = "";
 
@@ -53,7 +54,7 @@ export const apiRequest = async (
   }
 
   // 완전한 URL 생성 (baseUrl + endpoint)
-  const fullUrl = endpoint ? `${baseUrl}${endpoint}` : baseUrl;
+  const fullUrl = endpoint ? `${baseUrl}/${endpoint}` : baseUrl;
 
   // 메서드에 따른 처리
   if (method === "POST") {
