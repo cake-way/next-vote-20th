@@ -3,13 +3,11 @@ import { NextResponse } from "next/server";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function POST(req: Request) {
-
   try {
     // 요청 데이터 확인
     const body = await req.json();
-
     // 백엔드 서버 요청
-    const response = await fetch(`${BACKEND_URL}/auth/signup`, {
+    const response = await fetch(`${BACKEND_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,4 +36,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: "서버 요청 실패" }, { status: 500 });
   }
 }
-

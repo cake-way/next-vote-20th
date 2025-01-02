@@ -14,24 +14,31 @@ const Login: React.FC = () => {
     // 로그인 요청 함수
     const handleLogin = async () => {
         try {
-            const response = await apiRequest("auth", "POST", {
-                username: userId,
-                password: password,
-            }, "login");
+          const response = await apiRequest("auth", "POST", {
+            username: userId,
+            password: password,
+          }, "login");
 
-            // 요청 성공 시 처리
-            console.log("로그인 성공:", response);
-            alert("로그인 성공!"); // 예시로 alert 표시
-            localStorage.setItem('token', response.token); // 응답 dto 생성 필요
-        } catch (error: unknown) { // error를 unknown으로 지정
-            if (error instanceof Error) { // Error 객체인지 확인
-                console.error("로그인 실패:", error.message); 
+          console.log(response);
+      
+          // 응답에서 'data'와 'token'을 확인
+            if (response.data && response.data.token) {
+                console.log("로그인 성공:", response);
+                localStorage.setItem("token", response.data.token); // 응답에서 token을 로컬스토리지에 저장
+                alert("로그인 성공!");
+            } else {
+                console.error("로그인 실패: 토큰이 응답에 없습니다.");
+                alert("로그인 실패: 토큰이 응답에 없습니다.");
+            }
+            } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("로그인 실패:", error.message);
                 alert("로그인 실패 ㅋㅋ!");
             } else {
                 console.error("예기치 못한 오류:", error);
             }
-        }
-    };
+            }
+        };
 
     return (
         <Layout>
