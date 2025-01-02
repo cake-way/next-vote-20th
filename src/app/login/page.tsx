@@ -1,44 +1,50 @@
 "use client";
 
-//import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
+
+import { useAuthStore } from "@/stores/useAuth";
+import Modal from "@/components/Modal";
+
 import { apiRequest } from "../lib/api";
+import { ApiResponse } from "./dto";
 
 const Login: React.FC = () => {
+    const router = useRouter();
+    const { username, password, showPassword, setUserName, setPassword, toggleShowPassword, login } = useAuthStore();
 
-    const [userId, setUserId] = useState(""); // 아이디 상태
-    const [password, setPassword] = useState(""); // 비밀번호 상태
-    const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
 
-    // 로그인 요청 함수
-    const handleLogin = async () => {
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const loginRequest = {
+            username,
+            password,
+        }
+
         try {
-            console.log("로그인 요청 시작"); // 요청 시작 확인
-          const response = await apiRequest("auth", "POST", {
-            username: userId,
-            password: password,
-          }, "login");
-          console.log("API 응답 구조:", response); // 응답 데이터 전체 확인
-      
-          // 응답에서 'data'와 'token'을 확인
-            if (response.success && response.data.token) {
-                console.log("로그인 성공:", response);
-                localStorage.setItem("token", response.data.token); // 응답에서 token을 로컬스토리지에 저장
-                alert("로그인 성공!");
-            } else {
-                console.error("로그인 실패: 토큰이 응답에 없습니다.");
-                alert("로그인 실패: 토큰이 응답에 없습니다.");
-            }
-            } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error("로그인 실패:", error);
-                alert("로그인 실패 ㅋㅋ!");
-            } else {
-                console.error("예기치 못한 오류:", error);
-            }
-            }
-        };
+            const response: ApiResponse = await apiRequest("auth", "POST", loginRequest, "login");
+        
+            console.log("로그인 성공:", response);
+            localStorage.setItem('token', response.data.token); // 발급 받은 토큰 저장
+            login(); // 상태를 로그인 상태로 변경
+            setModalMessage("로그인 되었습니다 :)");
+            setIsModalOpen(true);  
+            
+        } catch (error) {
+            console.error("로그인 실패 실패:", error);
+            setModalMessage("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+            setIsModalOpen(true);
+        }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    router.push("/");
+  };
 
     return (
         <Layout>
@@ -47,24 +53,23 @@ const Login: React.FC = () => {
                 <Input
                     type="text"
                     placeholder="아이디"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)} // 상태 업데이트
+                    value={username}
+                    onChange={(e) => setUserName(e.target.value)} 
                 />
                 <PasswordContainer>
                     <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="비밀번호"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)} // 상태 업데이트
+                        onChange={(e) => setPassword(e.target.value)} 
                     />
-                    <ToggleButton
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                    {showPassword ? "숨기기" : "보기"}
+                     <ToggleButton type="button" onClick={toggleShowPassword}>
+                        {showPassword ? "숨기기" : "보기"}
                     </ToggleButton>
                 </PasswordContainer>
-                <Button onClick={handleLogin}>로그인</Button> {/* 로그인 버튼 */}
-            </FormContainer>
+                <Button onClick={handleLogin}>로그인</Button>
+            </FormContainer>   
+        <Modal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
         </Layout>
     );
 };

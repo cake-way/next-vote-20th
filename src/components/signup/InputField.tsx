@@ -21,7 +21,7 @@ const InputField: React.FC<{
         />
         {isPassword && (
           <PasswordContainer>
-            <ToggleButton onClick={togglePasswordVisibility}>
+            <ToggleButton type="button" onClick={togglePasswordVisibility}>
               {type === "password" ? "보기" : "숨기기"}
             </ToggleButton>
           </PasswordContainer>

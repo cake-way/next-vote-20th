@@ -6,6 +6,7 @@ import styled from "styled-components";
 
 import InputField from "@/components/signup/InputField";
 import SelectField from "@/components/signup/SelectField";
+import Modal from "@/components/Modal";
 
 import { Button, FormContainer, Title } from "../login/page";
 import { validatePassword } from "../lib/validate";
@@ -14,6 +15,8 @@ import { apiRequest } from "../lib/api";
 const SignUp: React.FC = () => {
   const router = useRouter();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
     password: false,
     confirmPassword: false,
@@ -33,7 +36,8 @@ const SignUp: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
-  
+  const [isSignupSuccess, setIsSignupSuccess] = useState<boolean | null>(null);
+
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -43,26 +47,26 @@ const SignUp: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "password") {
-      const passwordError = validatePassword(value);
-      setErrorMessages((prev) => ({
-        ...prev,
-        password: passwordError,
-      }));
-    }
-
-    if (name === "confirmPassword") {
-      const confirmError =
-        value !== formData.password
-          ? "비밀번호가 일치하지 않습니다."
-          : "";
-      setErrorMessages((prev) => ({
-        ...prev,
-        confirmPassword: confirmError,
-      }));
+  
+    if (name === "password" || name === "confirmPassword") {
+      validatePasswords(formData.password, formData.confirmPassword, value, name);
     }
   };
+  
+  const validatePasswords = (password: string, confirmPassword: string, currentValue: string, field: "password" | "confirmPassword") => {
+    let errorMessage = "";
+  
+    if (field === "password") {
+      errorMessage = validatePassword(currentValue);
+      setErrorMessages((prev) => ({ ...prev, password: errorMessage }));
+    }
+  
+    if (field === "confirmPassword") {
+      errorMessage = currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
+      setErrorMessages((prev) => ({ ...prev, confirmPassword: errorMessage }));
+    }
+  };
+  
 
   const handlePasswordToggle = (field: "password" | "confirmPassword") => {
     setPasswordVisibility((prev) => ({
@@ -90,28 +94,38 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      // 회원가입 API 요청
-      const requestBody = {
+      const signupRequest = {
         username,
         password,
         email,
         name,
         part: selectedPart.toUpperCase(), // "FRONTEND"처럼 모두 대문자로 변환
-        team: selectedTeam.toUpperCase(), // "PHOTOGROUND"처럼 모두 대문자로 변환
+        team: selectedTeam.toUpperCase(), // "CAKEWAY"처럼 모두 대문자로 변환
       };
 
-      const response = await apiRequest("auth", "POST", requestBody, "signup");
+      const response = await apiRequest("auth", "POST", signupRequest, "signup");
 
-      alert("회원가입이 성공적으로 완료되었습니다!"); // 모달 만들 필요성 있음
+      setModalMessage("signup complete!");
+      setIsModalOpen(true);  
+      setIsSignupSuccess(true);
       console.log("회원가입 성공:", response);
-      router.push("/login"); 
-
       // login 페이지에서 token 발급 받기 위함, 이것이 회원가입 시 발급 되면 별도의 페이지 이동 없이 token 발급 후 다른 api 요청 가능할 듯
       // -> 추후 cakeway 협업에서는 이런 응답 내용에 있어 백과 소통 필요
     } catch (error) {
       console.error("회원가입 실패:", error);
-      alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
-      router.push("/");
+      setModalMessage("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setIsModalOpen(true);  
+      setIsSignupSuccess(false); 
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+
+    if (isSignupSuccess) {
+      router.push("/login"); // 회원가입 성공 시 로그인 페이지로 이동
+    } else {
+      router.push("/"); // 회원가입 실패 시 홈 페이지로 이동
     }
   };
 
@@ -169,6 +183,7 @@ const SignUp: React.FC = () => {
           ))}
 
         <Button type="submit">회원가입</Button>
+        <Modal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
       </FormContainer>
     </Layout>
   );
@@ -182,9 +197,5 @@ const Layout = styled.div`
     flex-direction: column;
     align-items: center;
     height: 100vh;
-
-    margin-top: 9.375rem;
-    @media (max-height: 768px) {
-        margin-top: 10%;
-    }
+    margin-top: 1rem;
 `;
