@@ -58,7 +58,9 @@ export const apiRequest = async (
 
   // 메서드에 따른 처리
   if (method === "POST") {
-    return fetchData(fullUrl, "POST", body);
+    const response = await fetchData(fullUrl, method, body);
+    console.log("Fetch 응답:", response); // Fetch 응답 확인
+    return response;
   } else if (method === "GET") {
     return fetchData(fullUrl, "GET");
   } else {

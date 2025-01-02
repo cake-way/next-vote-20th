@@ -14,15 +14,15 @@ const Login: React.FC = () => {
     // 로그인 요청 함수
     const handleLogin = async () => {
         try {
+            console.log("로그인 요청 시작"); // 요청 시작 확인
           const response = await apiRequest("auth", "POST", {
             username: userId,
             password: password,
           }, "login");
-
-          console.log(response);
+          console.log("API 응답 구조:", response); // 응답 데이터 전체 확인
       
           // 응답에서 'data'와 'token'을 확인
-            if (response.data && response.data.token) {
+            if (response.success && response.data.token) {
                 console.log("로그인 성공:", response);
                 localStorage.setItem("token", response.data.token); // 응답에서 token을 로컬스토리지에 저장
                 alert("로그인 성공!");
@@ -32,7 +32,7 @@ const Login: React.FC = () => {
             }
             } catch (error: unknown) {
             if (error instanceof Error) {
-                console.error("로그인 실패:", error.message);
+                console.error("로그인 실패:", error);
                 alert("로그인 실패 ㅋㅋ!");
             } else {
                 console.error("예기치 못한 오류:", error);
