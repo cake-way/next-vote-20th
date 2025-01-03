@@ -44,3 +44,5 @@ export const VOTE_CONTENT: {
     { name: "페달지니", voteData: 11 },
   ],
 };
+
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;

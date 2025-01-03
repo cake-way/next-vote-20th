@@ -1,10 +1,28 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { styled } from "styled-components";
-import { VOTE_CONTENT } from "@/app/constants/common";
+import { useQuery } from "@tanstack/react-query";
+import { fetchVoteResults } from "@/app/lib/api";
+import { getPartUrlName } from "@/utils/utils";
+
+interface IVoteResult {
+  voteCount: number;
+  candidateName: string;
+}
+type VoteQueryKey = ["results", string];
 
 export default function Page() {
-  const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
+  const { votepart } = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
+  const { data, isLoading } = useQuery<
+    IVoteResult[],
+    Error,
+    IVoteResult[],
+    VoteQueryKey
+  >({
+    queryKey: ["results", votepart],
+    queryFn: async () => fetchVoteResults(getPartUrlName(votepart)),
+  }); //객체 형식을 권장
+
   const router = useRouter();
 
   const onClick = () => {
@@ -14,20 +32,26 @@ export default function Page() {
   return (
     <Container>
       <Header>
-        {params.votepart}
-        {params.votepart === "TEAM" ? "" : "파트장"} 투표 결과
+        {votepart}
+        {votepart === "TEAM" ? "" : "파트장"} 투표 결과
       </Header>
-      <TextContainer votepart={params.votepart}>
-        {VOTE_CONTENT[params.votepart]
-          .toSorted((a, b) => (a.voteData > b.voteData ? -1 : 1))
-          .map((prop) => (
-            <Text key={prop.name}>
-              {prop.name}
-              {prop.voteData}
-            </Text>
-          ))}
-        <Result onClick={onClick}>돌아가기</Result>
-      </TextContainer>
+      {isLoading ? (
+        <LoadingContainer>
+          <LoadingText>로딩중...</LoadingText>
+        </LoadingContainer>
+      ) : (
+        <TextContainer $votepart={votepart}>
+          {data
+            ?.toSorted((a, b) => (a.voteCount > b.voteCount ? -1 : 1))
+            .map((prop) => (
+              <Text key={prop.candidateName}>
+                {prop.candidateName}
+                {prop.voteCount}
+              </Text>
+            ))}
+          <Result onClick={onClick}>돌아가기</Result>
+        </TextContainer>
+      )}
     </Container>
   );
 }
@@ -44,10 +68,10 @@ const Header = styled.h1`
   margin-bottom: 2rem;
 
   @media (max-width: 64rem) {
-    font-size: 1.8rem; 
+    font-size: 1.8rem;
   }
   @media (max-width: 48rem) {
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
   }
 `;
 const Text = styled.p`
@@ -59,7 +83,7 @@ const Text = styled.p`
     background-color: #ff6c81;
     transition: 0.2s;
   }
-    
+
   @media (max-width: 64rem) {
     padding: 1.5rem;
   }
@@ -69,9 +93,9 @@ const Text = styled.p`
   }
 `;
 
-const TextContainer = styled.div<{ votepart: string }>`
-  display: ${({ votepart }) =>
-    votepart === "TEAM"
+const TextContainer = styled.div<{ $votepart: string }>`
+  display: ${({ $votepart }) =>
+    $votepart === "TEAM"
       ? "flex"
       : "grid"}; //{name}/ 함수식으로 해야props가 변경될 때마다 함수가 재실행되어 새로운 값을 계산
   grid-template-columns: repeat(2, 1fr);
@@ -88,4 +112,17 @@ const Result = styled.button`
     background-color: #ff6c81;
     transition: 0.2s;
   }
+`;
+
+//로딩
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
+const LoadingText = styled.h1`
+  color: #ff6c81;
+  font-size: 2rem;
 `;

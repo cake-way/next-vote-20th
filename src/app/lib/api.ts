@@ -4,26 +4,43 @@ interface Votedata {
   leader_id: string;
 }
 
+const getToken = async () => {
+  return localStorage.getItem("token");
+};
+
 // 기본적인 fetch 요청 함수
 const fetchData = async (
   url: string,
   method: string,
   body: Record<string, unknown> | null = null
 ) => {
-
   console.log("Fetch called with:", { url, method, body });
-  const response = await fetch(url, {
+
+  const token = await getToken();
+
+  const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
     },
-    body: body ? JSON.stringify(body) : null,
-  });
+  };
+
+  if (method !== "GET" && body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+
   console.log("Response status:", response.status);
 
   if (!response.ok) {
-    // 에러 처리
-    throw new Error(`HTTP error! status: ${response.status}`);
+    // 응답에 에러 정보가 있는지 확인
+    const errorData = await response.json().catch(() => null);
+
+    throw new Error(
+      errorData?.message || `HTTP error! status: ${response.status}`
+    );
   }
 
   return response.json();
@@ -34,7 +51,7 @@ export const apiRequest = async (
   domain: string,
   method: string = "GET",
   body: Record<string, unknown> | null = null,
-  endpoint: string = "", 
+  endpoint: string = ""
 ) => {
   // 도메인별 기본 URL 설정
   let baseUrl = "";
@@ -46,8 +63,8 @@ export const apiRequest = async (
     case "vote":
       baseUrl = "/api/vote";
       break;
-    case "result":
-      baseUrl = "/api/result";
+    case "results":
+      baseUrl = "/api/results";
       break;
     default:
       throw new Error("Unknown domain");
@@ -59,24 +76,23 @@ export const apiRequest = async (
   // 메서드에 따른 처리
   if (method === "POST") {
     return fetchData(fullUrl, method, body);
-  } 
-  else if (method === "GET") {
+  } else if (method === "GET") {
     return fetchData(fullUrl, "GET");
-  } 
-  else {
+  } else {
     throw new Error("Unsupported HTTP method");
   }
 };
 
 // 투표 결과를 가져오는 GET 요청
-export const fetchVoteResults = async () => {
+export const fetchVoteResults = async (endpoint: string) => {
   try {
-    const results = await apiRequest("result", "GET");
+    const results = await apiRequest("results", "GET", null, endpoint);
     console.log("투표 결과", results);
 
     if (!results.ok) {
       throw new Error(`${results.errorCode} 결과 조회 중 오류가 발생했습니다`);
     }
+    return results;
   } catch (error) {
     console.error("투표 결과 가져오기 실패", error);
   }
@@ -95,7 +111,9 @@ export const fetchPostVote = async ({
   });
 
   if (!response.ok) {
-    throw new Error(`${response.errorCode} 후보자 조회 중 오류가 발생했습니다`);
+    throw new Error(`${response.errorCode} 투표 중 오류가 발생했습니다`);
   }
+  return response;
 };
 
+//후보자 조회
