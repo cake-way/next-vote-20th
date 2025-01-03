@@ -17,9 +17,20 @@ const Login: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
 
+    const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (username === "" || password === "") {
+            setModalMessage(
+                username === ""
+                    ? "아이디를 입력해 주세요."
+                    : "비밀번호를 입력해 주세요."
+            );
+            setIsModalOpen(true);
+            return;
+        }
         const loginRequest = {
             username,
             password,
@@ -31,20 +42,23 @@ const Login: React.FC = () => {
             console.log("로그인 성공:", response);
             localStorage.setItem('token', response.data.token); // 발급 받은 토큰 저장
             login(); // 상태를 로그인 상태로 변경
-            setModalMessage("로그인 되었습니다 :)");
-            setIsModalOpen(true);  
+            setIsLoginSuccessful(true); // 로그인 성공 상태 설정
+            setIsModalOpen(true); 
             
         } catch (error) {
-            console.error("로그인 실패 실패:", error);
-            setModalMessage("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+            console.error("로그인 실패:", error);
             setIsModalOpen(true);
+            setUserName(""); // 입력 필드 초기화
+            setPassword("");
         }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    router.push("/");
-  };
+        if (isLoginSuccessful) {
+            router.push("/"); // 로그인 성공 시 홈으로 이동
+        }
+    };
 
     return (
         <Layout>
@@ -67,7 +81,7 @@ const Login: React.FC = () => {
                         {showPassword ? "숨기기" : "보기"}
                     </ToggleButton>
                 </PasswordContainer>
-                <Button onClick={handleLogin}>로그인</Button>
+                <Button disabled={username === "" && password === ""} onClick={handleLogin}>로그인</Button>
             </FormContainer>   
         <Modal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
         </Layout>
@@ -81,11 +95,8 @@ const Layout = styled.div`
     background-color: #ffffff;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 100vh;
-    margin-top: 9.375rem;
-    @media (max-height: 48rem) {
-        margin-top: 30%;
-    }
 `;
 
 export const Title = styled.h1`

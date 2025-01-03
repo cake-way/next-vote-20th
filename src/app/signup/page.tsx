@@ -197,5 +197,6 @@ const Layout = styled.div`
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    margin-top: 1rem;
+    align-items: center;
+    justify-content: center;
 `;
