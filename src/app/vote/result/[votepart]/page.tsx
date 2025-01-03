@@ -7,7 +7,8 @@ import { getPartUrlName } from "@/utils/utils";
 
 interface IVoteResult {
   voteCount: number;
-  candidateName: string;
+  candidateName?: string;
+  team: string;
 }
 type VoteQueryKey = ["results", string];
 
@@ -20,9 +21,12 @@ export default function Page() {
     VoteQueryKey
   >({
     queryKey: ["results", votepart],
-    queryFn: async () => fetchVoteResults(getPartUrlName(votepart)),
+    queryFn: async () => {
+      const response = await fetchVoteResults(getPartUrlName(votepart));
+      return response.data;
+    },
   }); //객체 형식을 권장
-
+  console.log(data);
   const router = useRouter();
 
   const onClick = () => {
@@ -44,8 +48,9 @@ export default function Page() {
           {data
             ?.toSorted((a, b) => (a.voteCount > b.voteCount ? -1 : 1))
             .map((prop) => (
-              <Text key={prop.candidateName}>
-                {prop.candidateName}
+              <Text key={prop.candidateName || prop.team}>
+                {prop.candidateName || prop.team}
+                <br />
                 {prop.voteCount}
               </Text>
             ))}

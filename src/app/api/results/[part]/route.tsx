@@ -1,4 +1,5 @@
 // import { BACKEND_URL } from "@/app/constants/common";
+
 import { NextResponse } from "next/server";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export async function GET(
@@ -25,9 +26,7 @@ export async function GET(
     if (token) {
       requestHeaders["Authorization"] = token;
     }
-    const url = `http://43.200.25.35:8080/${
-      part === "demoday" ? "" : "vote"
-    }/${part}`;
+    const url = `${BACKEND_URL}/${part === "demoday" ? "" : "vote/"}${part}`;
 
     const results = await fetch(url, {
       headers: { ...requestHeaders },

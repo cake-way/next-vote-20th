@@ -1,12 +1,10 @@
+import { getToken } from "@/utils/utils";
+
 interface Votedata {
   vote_id: string;
   user_id: string;
   leader_id: string;
 }
-
-const getToken = async () => {
-  return localStorage.getItem("token");
-};
 
 // 기본적인 fetch 요청 함수
 const fetchData = async (
@@ -66,6 +64,8 @@ export const apiRequest = async (
     case "results":
       baseUrl = "/api/results";
       break;
+    case "leader":
+      baseUrl = "/api/leader";
     default:
       throw new Error("Unknown domain");
   }
@@ -117,3 +117,6 @@ export const fetchPostVote = async ({
 };
 
 //후보자 조회
+export const fetchGetLeader = async (endpoint: string) => {
+  const response = await apiRequest("");
+};

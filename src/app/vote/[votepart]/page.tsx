@@ -5,14 +5,25 @@ import { VOTE_CONTENT } from "@/app/constants/common";
 import { useStore } from "@/stores/useVote";
 import { useState } from "react";
 import { fetchPostVote } from "@/app/lib/api";
+import { gettoken } from "@/utils/utils";
+import Modal from "@/components/Modal";
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
   const [clicked, setClicked] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const { setUserId, setVoteId, setLeaderId, user_id, leader_id } = useStore();
 
-  const onClick = (a: string) => {
+  const token = gettoken();
+
+  const onResultClick = (a: string) => {
+    if (!token) {
+      setIsModalOpen(true);
+      setModalMessage("로그인 후 결과조회가 가능해요!");
+      return;
+    }
     router.push(`result/${a}`);
   };
   const backClicked = () => {
@@ -25,6 +36,12 @@ export default function Page() {
   const onVoteCliced = async () => {
     console.log("user_id:" + user_id, "leader_id:" + leader_id);
     try {
+      if (!token) {
+        console.log(!token);
+        setIsModalOpen(true);
+        setModalMessage("로그인 후 투표가 가능해요!");
+        return;
+      }
       setUserId("지민재"); // 현재 유저로 바꾸기
       setLeaderId(clicked);
       const newVoteId = new Date().toLocaleDateString();
@@ -43,31 +60,45 @@ export default function Page() {
       // 에러 처리 필요
     }
   };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    router.push("/login");
+  };
   //결과화면이랑 중복되는건 컴포넌트로 만들기
 
   return (
-    <Container>
-      <Header>
-        <BackIcon onClick={backClicked}>◀︎</BackIcon>
-        <span>
-          {params.votepart}
-          {params.votepart === "TEAM" ? "" : "파트장"} 투표
-        </span>
-      </Header>
-      <TextContainer votepart={params.votepart}>
-        {VOTE_CONTENT[params.votepart].map((prop) => (
-          <Text
-            onClick={() => onLeaderClicked(prop.name)}
-            key={prop.name}
-            $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
-          >
-            {prop.name}
-          </Text>
-        ))}
-        <Result onClick={onVoteCliced}>투표하기</Result>
-        <Result onClick={() => onClick(params.votepart)}>결과보기</Result>
-      </TextContainer>
-    </Container>
+    <>
+      <Container>
+        <Header>
+          <BackIcon onClick={backClicked}>◀︎</BackIcon>
+          <span>
+            {params.votepart}
+            {params.votepart === "TEAM" ? "" : "파트장"} 투표
+          </span>
+        </Header>
+        <TextContainer $votepart={params.votepart}>
+          {VOTE_CONTENT[params.votepart].map((prop) => (
+            <Text
+              onClick={() => onLeaderClicked(prop.name)}
+              key={prop.name}
+              $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
+            >
+              {prop.name}
+            </Text>
+          ))}
+          <Result onClick={onVoteCliced}>투표하기</Result>
+          <Result onClick={() => onResultClick(params.votepart)}>
+            결과보기
+          </Result>
+        </TextContainer>
+      </Container>
+      <Modal
+        isOpen={isModalOpen}
+        message={modalMessage}
+        onClose={handleCloseModal}
+      />
+    </>
   );
 }
 
@@ -119,9 +150,9 @@ const Text = styled.p<{ $isActive: boolean }>`
   }
 `;
 
-const TextContainer = styled.div<{ votepart: string }>`
-  display: ${({ votepart }) =>
-    votepart === "TEAM"
+const TextContainer = styled.div<{ $votepart: string }>`
+  display: ${({ $votepart }) =>
+    $votepart === "TEAM"
       ? "flex"
       : "grid"}; //{name}/ 함수식으로 해야props가 변경될 때마다 함수가 재실행되어 새로운 값을 계산
   grid-template-columns: repeat(2, 1fr);
