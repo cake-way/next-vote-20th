@@ -2,14 +2,20 @@
 import styled from "styled-components";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+
+  useEffect(() => {
+    // 클라이언트 측에서만 localStorage 접근
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
 
   const onClick = (part: string) => {
     if (!token) {

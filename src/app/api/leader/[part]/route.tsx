@@ -1,11 +1,13 @@
 import { BACKEND_URL } from "@/app/constants/common";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET(req: Request, context: { params: { part: string } }) {
-  const { params } = context;
-  const { part } = params;
+export async function GET(
+  request: NextRequest, // Request로 변경
+  context: { params: { part: string } }
+) {
+  const { part } = context.params;
 
-  const { headers } = req;
+  const { headers } = request;
   const token = headers.get("Authorization");
 
   try {
