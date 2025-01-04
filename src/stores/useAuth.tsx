@@ -23,7 +23,7 @@ interface AuthState {
             isLoggedIn: false, // zustand 상태 초기화
           }));
           
-          localStorage.clear(); // 로컬스토리지 완전 초기화
+          localStorage.removeItem("token");
         },
       }),
       {
