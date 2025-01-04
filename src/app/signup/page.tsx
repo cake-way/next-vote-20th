@@ -8,7 +8,6 @@ import InputField from "@/components/signup/InputField";
 import SelectField from "@/components/signup/SelectField";
 import Modal from "@/components/Modal";
 
-import { Button, FormContainer, Title } from "../login/page";
 import { validatePassword } from "../lib/validate";
 import { apiRequest } from "../lib/api";
 
@@ -17,7 +16,9 @@ const SignUp: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
+  const [passwordVisibility, setPasswordVisibility] = useState<{
+    [key: string]: boolean;
+  }>({
     password: false,
     confirmPassword: false,
   });
@@ -44,29 +45,41 @@ const SignUp: React.FC = () => {
     setIsClient(true); // 클라이언트에서만 실행되도록 설정
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  
+
     if (name === "password" || name === "confirmPassword") {
-      validatePasswords(formData.password, formData.confirmPassword, value, name);
+      validatePasswords(
+        formData.password,
+        formData.confirmPassword,
+        value,
+        name
+      );
     }
   };
-  
-  const validatePasswords = (password: string, confirmPassword: string, currentValue: string, field: "password" | "confirmPassword") => {
+
+  const validatePasswords = (
+    password: string,
+    confirmPassword: string,
+    currentValue: string,
+    field: "password" | "confirmPassword"
+  ) => {
     let errorMessage = "";
-  
+
     if (field === "password") {
       errorMessage = validatePassword(currentValue);
       setErrorMessages((prev) => ({ ...prev, password: errorMessage }));
     }
-  
+
     if (field === "confirmPassword") {
-      errorMessage = currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
+      errorMessage =
+        currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
       setErrorMessages((prev) => ({ ...prev, confirmPassword: errorMessage }));
     }
   };
-  
 
   const handlePasswordToggle = (field: "password" | "confirmPassword") => {
     setPasswordVisibility((prev) => ({
@@ -78,7 +91,15 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { password, confirmPassword, name, username, email, selectedTeam, selectedPart } = formData;
+    const {
+      password,
+      confirmPassword,
+      name,
+      username,
+      email,
+      selectedTeam,
+      selectedPart,
+    } = formData;
 
     // 비밀번호 유효성 검사
     const passwordError = validatePassword(password);
@@ -103,10 +124,15 @@ const SignUp: React.FC = () => {
         team: selectedTeam.toUpperCase(), // "CAKEWAY"처럼 모두 대문자로 변환
       };
 
-      const response = await apiRequest("auth", "POST", signupRequest, "signup");
+      const response = await apiRequest(
+        "auth",
+        "POST",
+        signupRequest,
+        "signup"
+      );
 
       setModalMessage("signup complete!");
-      setIsModalOpen(true);  
+      setIsModalOpen(true);
       setIsSignupSuccess(true);
       console.log("회원가입 성공:", response);
       // login 페이지에서 token 발급 받기 위함, 이것이 회원가입 시 발급 되면 별도의 페이지 이동 없이 token 발급 후 다른 api 요청 가능할 듯
@@ -114,8 +140,8 @@ const SignUp: React.FC = () => {
     } catch (error) {
       console.error("회원가입 실패:", error);
       setModalMessage("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
-      setIsModalOpen(true);  
-      setIsSignupSuccess(false); 
+      setIsModalOpen(true);
+      setIsSignupSuccess(false);
     }
   };
 
@@ -148,7 +174,14 @@ const SignUp: React.FC = () => {
   ];
 
   const selectOptions: { [key: string]: string[] } = {
-    team: ["팀명 선택", "CakeWay", "페달지니", "PhotoGround", "커피딜", "엔젤브릿지"],
+    team: [
+      "팀명 선택",
+      "CakeWay",
+      "페달지니",
+      "PhotoGround",
+      "커피딜",
+      "엔젤브릿지",
+    ],
     part: ["파트 선택", "FrontEnd", "BackEnd"],
   };
 
@@ -159,31 +192,49 @@ const SignUp: React.FC = () => {
       <Title>회원가입</Title>
       <FormContainer onSubmit={handleSubmit}>
         {inputFields.map((field) => (
-            <InputField
-              key={field.name}
-              name={field.name}
-              type={field.isPassword ? (passwordVisibility[field.name] ? "text" : "password") : field.type}
-              placeholder={field.placeholder}
-              value={formData[field.name]}
-              onChange={handleInputChange}
-              errorMessage={field.name === "password" ? errorMessages.password : field.name === "confirmPassword" ? errorMessages.confirmPassword : ""}
-              isPassword={field.isPassword}
-              togglePasswordVisibility={() => handlePasswordToggle(field.name as "password" | "confirmPassword")}
-            />
-          ))}
+          <InputField
+            key={field.name}
+            name={field.name}
+            type={
+              field.isPassword
+                ? passwordVisibility[field.name]
+                  ? "text"
+                  : "password"
+                : field.type
+            }
+            placeholder={field.placeholder}
+            value={formData[field.name]}
+            onChange={handleInputChange}
+            errorMessage={
+              field.name === "password"
+                ? errorMessages.password
+                : field.name === "confirmPassword"
+                ? errorMessages.confirmPassword
+                : ""
+            }
+            isPassword={field.isPassword}
+            togglePasswordVisibility={() =>
+              handlePasswordToggle(field.name as "password" | "confirmPassword")
+            }
+          />
+        ))}
 
-          {Object.keys(selectOptions).map((key) => (
-            <SelectField
-              key={key}
-              name={key === "team" ? "selectedTeam" : "selectedPart"}
-              value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
-              options={selectOptions[key]}
-              onChange={handleInputChange}
-            />
-          ))}
+        {Object.keys(selectOptions).map((key) => (
+          <SelectField
+            key={key}
+            name={key === "team" ? "selectedTeam" : "selectedPart"}
+            value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
+            options={selectOptions[key]}
+            onChange={handleInputChange}
+          />
+        ))}
 
         <Button type="submit">회원가입</Button>
-        <Modal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
+        <Modal
+          isOpen={isModalOpen}
+          message={modalMessage}
+          onClose={handleCloseModal}
+        />
       </FormContainer>
     </Layout>
   );
@@ -192,10 +243,64 @@ const SignUp: React.FC = () => {
 export default SignUp;
 
 const Layout = styled.div`
-    display: flex;
-    background-color: #ffffff;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    margin-top: 1rem;
+  display: flex;
+  background-color: #ffffff;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  margin-top: 1rem;
+`;
+
+const Button = styled.button`
+  width: 30%;
+  background-color: #ffffff;
+  padding: 0.8rem;
+  margin-top: 3rem;
+  color: black;
+  border: 0.125rem solid rgb(255, 108, 129);
+  border-radius: 0.9375rem;
+  font-size: 1rem;
+  cursor: pointer;
+  &:hover {
+    background-color: rgb(255, 108, 129);
+    color: #ffffff;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  @media (max-width: 48rem) {
+    width: 30%;
+    padding: 0.625rem;
+  }
+  @media (max-width: 29.6875rem) {
+    width: 40%;
+    padding: 0.4375rem;
+    margin-top: 1.875rem;
+    font-size: 0.8rem;
+  }
+`;
+
+const Title = styled.h1`
+  margin-bottom: 1.5rem;
+  @media (max-width: 64rem) {
+    font-size: 1.8rem;
+  }
+  @media (max-width: 48rem) {
+    font-size: 1.5rem;
+  }
+`;
+
+const FormContainer = styled.form`
+  padding: 4.375rem 3rem 1.25rem 3rem;
+  border-radius: 1.25rem;
+  border: 0.1875rem solid rgb(255, 108, 129);
+  text-align: center;
+  width: 37.5rem; /* 기본 고정 너비 */
+  @media (max-width: 37.5rem) {
+    width: 90%; /* 600px 이하에서 화면 크기에 따라 유동적으로 줄어듦 */
+    padding: 3.125rem 1.875rem 1rem 1.875rem; /* 여백 유지 */
+  }
+  @media (max-width: 25rem) {
+    width: 80%; /* 400px 이하에서 더 작아짐 */
+    padding: 2.5rem 1.25rem 0.75rem 1.25rem; /* 여백도 줄어듦 */
+  }
 `;

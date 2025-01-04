@@ -59,34 +59,36 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <Title>로그인</Title>
-      <FormContainer>
-        <Input
-          type="text"
-          placeholder="아이디"
-          value={username}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-        <PasswordContainer>
+    <>
+      <Layout>
+        <Title>로그인</Title>
+        <FormContainer>
           <Input
-            type={showPassword ? "text" : "password"}
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="text"
+            placeholder="아이디"
+            value={username}
+            onChange={(e) => setUserName(e.target.value)}
           />
-          <ToggleButton type="button" onClick={toggleShowPassword}>
-            {showPassword ? "숨기기" : "보기"}
-          </ToggleButton>
-        </PasswordContainer>
-        <Button onClick={handleLogin}>로그인</Button>
-      </FormContainer>
-      <Modal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={handleCloseModal}
-      />
-    </Layout>
+          <PasswordContainer>
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <ToggleButton type="button" onClick={toggleShowPassword}>
+              {showPassword ? "숨기기" : "보기"}
+            </ToggleButton>
+          </PasswordContainer>
+          <Button onClick={handleLogin}>로그인</Button>
+        </FormContainer>
+        <Modal
+          isOpen={isModalOpen}
+          message={modalMessage}
+          onClose={handleCloseModal}
+        />
+      </Layout>
+    </>
   );
 };
 
@@ -104,7 +106,7 @@ const Layout = styled.div`
   }
 `;
 
-export const Title = styled.h1`
+const Title = styled.h1`
   margin-bottom: 1.5rem;
   @media (max-width: 64rem) {
     font-size: 1.8rem;
@@ -114,7 +116,7 @@ export const Title = styled.h1`
   }
 `;
 
-export const FormContainer = styled.form`
+const FormContainer = styled.form`
   padding: 4.375rem 3rem 1.25rem 3rem;
   border-radius: 1.25rem;
   border: 0.1875rem solid rgb(255, 108, 129);
@@ -161,7 +163,7 @@ const ToggleButton = styled.button`
   }
 `;
 
-export const Button = styled.button`
+const Button = styled.button`
   width: 30%;
   background-color: #ffffff;
   padding: 0.8rem;
