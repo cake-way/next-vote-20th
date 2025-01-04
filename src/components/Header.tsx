@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image"; 
+import Image from "next/image";
 import styled from "styled-components";
 
 import { useAuthStore } from "@/stores/useAuth";
@@ -12,10 +12,11 @@ const Header: React.FC = () => {
 
   const handleLogoutButtonClick = () => {
     logout();
+    router.push("/");
   };
 
   const handleLogoClick = () => {
-    router.push("/"); 
+    router.push("/");
   };
 
   return (
