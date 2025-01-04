@@ -1,14 +1,13 @@
 import { BACKEND_URL } from "@/app/constants/common";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET 함수의 두 번째 인자에서 context 타입을 정확하게 정의
+// `params`의 타입을 정확히 정의
 export async function GET(
   request: NextRequest,
-  { params }: { params: { part: string } } // params는 { part: string }으로 정확히 정의
+  { params }: { params: { part: string } } // 정확한 타입 정의
 ): Promise<NextResponse> {
-  const { part } = params; // params에서 part 값 추출
+  const part = await params?.part; // 비동기적으로 `part`를 기다림
 
-  // part가 없으면 에러 처리
   if (!part) {
     return NextResponse.json(
       { error: "Bad Request: Missing part parameter" },
@@ -28,7 +27,6 @@ export async function GET(
       );
     }
 
-    // URL 설정
     const url = `${BACKEND_URL}/${part === "team" ? "" : "leader/"}${part}`;
     console.log(`Fetching data from: ${url}`);
 
