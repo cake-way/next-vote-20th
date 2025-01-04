@@ -12,8 +12,11 @@ import { ApiResponse } from "./dto";
 
 const Login: React.FC = () => {
     const router = useRouter();
-    const { username, password, showPassword, setUserName, setPassword, toggleShowPassword, login } = useAuthStore();
+    const { username, setUserName, login } = useAuthStore();
 
+    const [password, setPassword] = useState(""); 
+    const [showPassword, setShowPassword] = useState(false); 
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
 
@@ -44,6 +47,7 @@ const Login: React.FC = () => {
             login(); // 상태를 로그인 상태로 변경
             setIsLoginSuccessful(true); // 로그인 성공 상태 설정
             setIsModalOpen(true); 
+            setModalMessage("로그인 성공!");
             
         } catch (error) {
             console.error("로그인 실패:", error);
@@ -53,6 +57,9 @@ const Login: React.FC = () => {
         }
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
   const handleCloseModal = () => {
     setIsModalOpen(false);
         if (isLoginSuccessful) {

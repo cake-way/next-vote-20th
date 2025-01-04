@@ -17,6 +17,7 @@ const SignUp: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  
   const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
     password: false,
     confirmPassword: false,
