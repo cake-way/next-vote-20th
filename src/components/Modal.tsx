@@ -47,6 +47,9 @@ const Message = styled.p`
   margin-bottom: 1.25rem;
   font-size: 1rem;
   white-space: pre-line;
+  @media (max-height: 48rem) {
+    font-size: 0.7rem;
+}
 `;
 
 const CloseButton = styled.button`
@@ -57,4 +60,7 @@ const CloseButton = styled.button`
   border-radius: 0.3125rem;
   cursor: pointer;
   font-size: 0.8rem;
+  @media (max-height: 48rem) {
+    font-size: 0.7rem;
+    }
 `;

@@ -4,6 +4,7 @@ import { styled } from "styled-components";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVoteResults } from "@/app/lib/api";
 import { getPartUrlName } from "@/utils/utils";
+import Loading from "@/components/vote/Loading";
 
 interface IVoteResult {
   voteCount: number;
@@ -41,9 +42,7 @@ export default function Page() {
         {votepart === "TEAM" ? "" : "파트장"} 투표 결과
       </Header>
       {isLoading ? (
-        <LoadingContainer>
-          <LoadingText>로딩중...</LoadingText>
-        </LoadingContainer>
+        <Loading /> 
       ) : (
         <TextContainer $votepart={votepart}>
           {data
@@ -114,22 +113,9 @@ const Result = styled.button`
   background-color: transparent;
   border: 0.2rem solid #ff6c81;
   padding: 0.3rem;
-  color: white;
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+    color: white;
   }
-`;
-
-//로딩
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
-
-const LoadingText = styled.h1`
-  color: #ff6c81;
-  font-size: 2rem;
 `;

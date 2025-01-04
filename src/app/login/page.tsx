@@ -11,97 +11,105 @@ import { apiRequest } from "../lib/api";
 import { ApiResponse } from "./dto";
 
 const Login: React.FC = () => {
-  const router = useRouter();
-  const {
-    username,
-    password,
-    showPassword,
-    setUserName,
-    setPassword,
-    toggleShowPassword,
-    login,
-  } = useAuthStore();
+    const router = useRouter();
+    const { username, setUserName, login } = useAuthStore(); // 전역적으로 관리할 상태들
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+    const [password, setPassword] = useState(""); 
+    const [showPassword, setShowPassword] = useState(false); 
+    
+    const [isLoginSuccessful, setIsLoginSuccessful] = useState(false); 
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const [modalState, setModalState] = useState<{ isOpen: boolean; message: string }>({
+        isOpen: false,
+        message: "",
+    }); // 모달 상태 통합
 
-    const loginRequest = {
-      username,
-      password,
+    // 로그인 버튼 클릭 이벤트
+    const handleLoginButtonClick = async (e: React.FormEvent) => {
+        e.preventDefault(); // 클릭 이벤트 발생 시 기본 동작 방지, 페이지 새로고침 없이 로그인 로직을 수행할 수 있도록
+
+        if (username === "" || password === "") {
+            setModalState({
+                isOpen: true,
+                message: username === "" ? "아이디를 입력해 주세요." : "비밀번호를 입력해 주세요.",
+            });
+            return;
+        }
+
+        const loginRequest = { username, password };
+
+        try {
+            const response: ApiResponse = await apiRequest("auth", "POST", loginRequest, "login");
+
+            // 로그인 성공 처리
+            localStorage.setItem("token", response.data.token); // 토큰 저장
+            login(); // 로그인 상태로 변경
+            setIsLoginSuccessful(true); // 로그인 성공 상태로 설정
+
+            // 로그인 성공 모달 표시
+            setModalState({ isOpen: true, message: "로그인 성공!" });
+        } 
+        catch (error) {
+            // 로그인 실패 처리
+            console.log("로그인 실패: ", error);
+            setModalState({ isOpen: true, message: "아이디 또는 비밀번호를 다시 입력해 주세요." });
+            setUserName(""); // 입력 필드 초기화
+            setPassword(""); // 비밀번호 필드 초기화
+        }
     };
 
-    try {
-      const response: ApiResponse = await apiRequest(
-        "auth",
-        "POST",
-        loginRequest,
-        "login"
-      );
+    // 비밀번호 숨김 토글 버튼
+    const toggleShowPassword = () => {
+        setShowPassword((prev) => !prev);
+    };
 
-      console.log("로그인 성공:", response);
-      localStorage.setItem("token", response.data.token); // 발급 받은 토큰 저장
-      login(); // 상태를 로그인 상태로 변경
-      setModalMessage("로그인 되었습니다 :)");
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("로그인 실패 실패:", error);
-      setModalMessage("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
-      setIsModalOpen(true);
-    }
-  };
+    const handleModalClose = () => {
+        setModalState((prev) => ({ ...prev, isOpen: false }));
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    router.push("/");
-  };
+        // 로그인 성공 시에만 홈으로 이동
+        if (isLoginSuccessful) {
+        router.push("/"); // 로그인 성공 시 홈으로 이동
+        }
+    };
 
-  return (
-    <Layout>
-      <Title>로그인</Title>
-      <FormContainer>
-        <Input
-          type="text"
-          placeholder="아이디"
-          value={username}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-        <PasswordContainer>
-          <Input
-            type={showPassword ? "text" : "password"}
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <ToggleButton type="button" onClick={toggleShowPassword}>
-            {showPassword ? "숨기기" : "보기"}
-          </ToggleButton>
-        </PasswordContainer>
-        <Button onClick={handleLogin}>로그인</Button>
-      </FormContainer>
-      <Modal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={handleCloseModal}
-      />
-    </Layout>
-  );
+    return (
+        <Layout>
+            <Title>로그인</Title>
+            <FormContainer>
+                <Input
+                    type="text"
+                    placeholder="아이디"
+                    value={username}
+                    onChange={(e) => setUserName(e.target.value)} 
+                />
+                <PasswordContainer>
+                    <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="비밀번호"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)} 
+                    />
+                     <ToggleButton type="button" onClick={toggleShowPassword}>
+                        {showPassword ? "숨기기" : "보기"}
+                    </ToggleButton>
+                </PasswordContainer>
+                <Button disabled={username === "" && password === ""} onClick={handleLoginButtonClick}>로그인</Button>
+            </FormContainer>   
+        <Modal isOpen={modalState.isOpen} message={modalState.message} onClose={handleModalClose} />
+        </Layout>
+    );
 };
 
 export default Login;
 
 const Layout = styled.div`
-  display: flex;
-  background-color: #ffffff;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  margin-top: 9.375rem;
-  @media (max-height: 48rem) {
-    margin-top: 30%;
-  }
+    display: flex;
+    background-color: #ffffff;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: -5rem;
+    height: 100vh;
 `;
 
 export const Title = styled.h1`
