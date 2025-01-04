@@ -70,6 +70,11 @@ export default function Page() {
       setModalMessage("후보자를 선택해주세요!");
       return;
     }
+    if (localStorage.getItem(`${params.votepart}`)) {
+      setIsModalOpen(true);
+      setModalMessage("이미 투표를 하셨습니다!");
+      return;
+    }
     try {
       setMember(username); // 현재 유저로 바꾸기
       setCandidate(clicked);
@@ -87,17 +92,10 @@ export default function Page() {
           clicked as keyof (typeof VOTE_CONTENT)[typeof params.votepart]
         ]
       );
-      console.log("clicked:" + clicked);
-      console.log(endpoint);
 
-      // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
       await fetchPostVote(endpoint, demoday);
 
-      console.log(
-        "vote_id :" + newVoteId,
-        "member :" + username,
-        "leader:" + candidate
-      );
+      localStorage.setItem(`${params.votepart}`, username);
 
       router.push(`result/${params.votepart}`);
     } catch (error) {
@@ -223,4 +221,3 @@ const Result = styled.button`
     font-size: 0.8rem;
   }
 `;
-

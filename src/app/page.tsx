@@ -7,18 +7,18 @@ import Modal from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     // 클라이언트 측에서만 localStorage 접근
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
+    const user = localStorage.getItem("loggedUserInfo");
+    setUser(user);
   }, []);
 
   const onClick = (part: string) => {
-    if (!token) {
+    if (!user) {
       setIsModalOpen(true);
       setModalMessage("로그인 후 투표가 가능해요!");
       return;
