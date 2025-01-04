@@ -1,29 +1,40 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { styled } from "styled-components";
-import { VOTE_CONTENT } from "@/app/constants/common";
 import { useStore } from "@/stores/useVote";
 import { useState } from "react";
-import { fetchPostVote } from "@/app/lib/api";
-import { gettoken } from "@/utils/utils";
-import Modal from "@/components/Modal";
+import { fetchGetLeader, fetchPostVote } from "@/app/lib/api";
+import { getPartUrlName } from "@/utils/utils";
+import { useQuery } from "@tanstack/react-query";
+
+interface ILeader {
+  id: number;
+  name: string;
+}
+
+type VoteQueryKey = ["leader", string];
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
   const [clicked, setClicked] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const { setUserId, setVoteId, setLeaderId, user_id, leader_id } = useStore();
 
-  const token = gettoken();
+  const { setUserId, setVoteId, setLeaderId, user_id, leader_id } = useStore();
+  const { data, isLoading } = useQuery<
+    ILeader[],
+    Error,
+    ILeader[],
+    VoteQueryKey
+  >({
+    queryKey: ["leader", params.votepart],
+    queryFn: async () => {
+      const response = await fetchGetLeader(getPartUrlName(params.votepart));
+      return response.data;
+    },
+  });
+  console.log(data);
 
   const onResultClick = (a: string) => {
-    if (!token) {
-      setIsModalOpen(true);
-      setModalMessage("로그인 후 결과조회가 가능해요!");
-      return;
-    }
     router.push(`result/${a}`);
   };
   const backClicked = () => {
@@ -36,12 +47,6 @@ export default function Page() {
   const onVoteCliced = async () => {
     console.log("user_id:" + user_id, "leader_id:" + leader_id);
     try {
-      if (!token) {
-        console.log(!token);
-        setIsModalOpen(true);
-        setModalMessage("로그인 후 투표가 가능해요!");
-        return;
-      }
       setUserId("지민재"); // 현재 유저로 바꾸기
       setLeaderId(clicked);
       const newVoteId = new Date().toLocaleDateString();
@@ -61,12 +66,10 @@ export default function Page() {
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    router.push("/login");
-  };
   //결과화면이랑 중복되는건 컴포넌트로 만들기
-
+  if (isLoading) {
+    return;
+  }
   return (
     <>
       <Container>
@@ -77,27 +80,29 @@ export default function Page() {
             {params.votepart === "TEAM" ? "" : "파트장"} 투표
           </span>
         </Header>
-        <TextContainer $votepart={params.votepart}>
-          {VOTE_CONTENT[params.votepart].map((prop) => (
-            <Text
-              onClick={() => onLeaderClicked(prop.name)}
-              key={prop.name}
-              $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
-            >
-              {prop.name}
-            </Text>
-          ))}
-          <Result onClick={onVoteCliced}>투표하기</Result>
-          <Result onClick={() => onResultClick(params.votepart)}>
-            결과보기
-          </Result>
-        </TextContainer>
+        {isLoading ? (
+          <LoadingContainer>
+            <LoadingText>로딩중...</LoadingText>
+          </LoadingContainer>
+        ) : (
+          <TextContainer $votepart={params.votepart}>
+            {/* {VOTE_CONTENT[params.votepart] */}
+            {data?.map((prop: { id: number; name: string }) => (
+              <Text
+                onClick={() => onLeaderClicked(prop.name)}
+                key={prop.id}
+                $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
+              >
+                {prop.name}
+              </Text>
+            ))}
+            <Result onClick={onVoteCliced}>투표하기</Result>
+            <Result onClick={() => onResultClick(params.votepart)}>
+              결과보기
+            </Result>
+          </TextContainer>
+        )}
       </Container>
-      <Modal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={handleCloseModal}
-      />
     </>
   );
 }
@@ -177,4 +182,17 @@ const Result = styled.button`
     padding: 0.2rem;
     font-size: 0.8rem;
   }
+`;
+
+//로딩
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
+const LoadingText = styled.h1`
+  color: #ff6c81;
+  font-size: 2rem;
 `;

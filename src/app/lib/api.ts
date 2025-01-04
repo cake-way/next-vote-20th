@@ -66,6 +66,7 @@ export const apiRequest = async (
       break;
     case "leader":
       baseUrl = "/api/leader";
+      break;
     default:
       throw new Error("Unknown domain");
   }
@@ -89,9 +90,9 @@ export const fetchVoteResults = async (endpoint: string) => {
     const results = await apiRequest("results", "GET", null, endpoint);
     console.log("투표 결과", results);
 
-    if (!results.ok) {
-      throw new Error(`${results.errorCode} 결과 조회 중 오류가 발생했습니다`);
-    }
+    // if (!results.ok) {
+    //   throw new Error(`${results.errorCode} 결과 조회 중 오류가 발생했습니다`);
+    // }이거 왜안돼?
     return results;
   } catch (error) {
     console.error("투표 결과 가져오기 실패", error);
@@ -118,5 +119,17 @@ export const fetchPostVote = async ({
 
 //후보자 조회
 export const fetchGetLeader = async (endpoint: string) => {
-  const response = await apiRequest("");
+  try {
+    const response = await apiRequest("leader", "GET", null, endpoint);
+
+    // if (!response.ok) {
+    //   throw new Error(
+    //     `${response.errorCode} 후보자 조회 중 오류가 발생했습니다`
+    //   );
+    // }
+    console.log("후보자조회 결과", response);
+    return response;
+  } catch (error) {
+    console.error("후보자조회실패", error);
+  }
 };

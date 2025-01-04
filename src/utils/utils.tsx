@@ -1,3 +1,5 @@
+"use client";
+
 export const getPartUrlName = (part: string) => {
   switch (part) {
     case "FE":
