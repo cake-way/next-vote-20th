@@ -12,58 +12,63 @@ import { ApiResponse } from "./dto";
 
 const Login: React.FC = () => {
     const router = useRouter();
-    const { username, setUserName, login } = useAuthStore();
+    const { username, setUserName, login } = useAuthStore(); // 전역적으로 관리할 상태들
 
     const [password, setPassword] = useState(""); 
     const [showPassword, setShowPassword] = useState(false); 
     
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
+    const [isLoginSuccessful, setIsLoginSuccessful] = useState(false); 
 
-    const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; message: string }>({
+        isOpen: false,
+        message: "",
+    }); // 모달 상태 통합
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // 로그인 버튼 클릭 이벤트
+    const handleLoginButtonClick = async (e: React.FormEvent) => {
+        e.preventDefault(); // 클릭 이벤트 발생 시 기본 동작 방지, 페이지 새로고침 없이 로그인 로직을 수행할 수 있도록
 
         if (username === "" || password === "") {
-            setModalMessage(
-                username === ""
-                    ? "아이디를 입력해 주세요."
-                    : "비밀번호를 입력해 주세요."
-            );
-            setIsModalOpen(true);
+            setModalState({
+                isOpen: true,
+                message: username === "" ? "아이디를 입력해 주세요." : "비밀번호를 입력해 주세요.",
+            });
             return;
         }
-        const loginRequest = {
-            username,
-            password,
-        }
+
+        const loginRequest = { username, password };
 
         try {
             const response: ApiResponse = await apiRequest("auth", "POST", loginRequest, "login");
-        
-            console.log("로그인 성공:", response);
-            localStorage.setItem('token', response.data.token); // 발급 받은 토큰 저장
-            login(); // 상태를 로그인 상태로 변경
-            setIsLoginSuccessful(true); // 로그인 성공 상태 설정
-            setIsModalOpen(true); 
-            setModalMessage("로그인 성공!");
-            
-        } catch (error) {
-            console.error("로그인 실패:", error);
-            setIsModalOpen(true);
-            setUserName(""); // 입력 필드 초기화
-            setPassword("");
-        }
-  };
 
-  const toggleShowPassword = () => {
-    setShowPassword((prev) => !prev);
-  };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+            // 로그인 성공 처리
+            localStorage.setItem("token", response.data.token); // 토큰 저장
+            login(); // 로그인 상태로 변경
+            setIsLoginSuccessful(true); // 로그인 성공 상태로 설정
+
+            // 로그인 성공 모달 표시
+            setModalState({ isOpen: true, message: "로그인 성공!" });
+        } 
+        catch (error) {
+            // 로그인 실패 처리
+            console.log("로그인 실패: ", error);
+            setModalState({ isOpen: true, message: "아이디 또는 비밀번호를 다시 입력해 주세요." });
+            setUserName(""); // 입력 필드 초기화
+            setPassword(""); // 비밀번호 필드 초기화
+        }
+    };
+
+    // 비밀번호 숨김 토글 버튼
+    const toggleShowPassword = () => {
+        setShowPassword((prev) => !prev);
+    };
+
+    const handleModalClose = () => {
+        setModalState((prev) => ({ ...prev, isOpen: false }));
+
+        // 로그인 성공 시에만 홈으로 이동
         if (isLoginSuccessful) {
-            router.push("/"); // 로그인 성공 시 홈으로 이동
+        router.push("/"); // 로그인 성공 시 홈으로 이동
         }
     };
 
@@ -88,9 +93,9 @@ const Login: React.FC = () => {
                         {showPassword ? "숨기기" : "보기"}
                     </ToggleButton>
                 </PasswordContainer>
-                <Button disabled={username === "" && password === ""} onClick={handleLogin}>로그인</Button>
+                <Button disabled={username === "" && password === ""} onClick={handleLoginButtonClick}>로그인</Button>
             </FormContainer>   
-        <Modal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
+        <Modal isOpen={modalState.isOpen} message={modalState.message} onClose={handleModalClose} />
         </Layout>
     );
 };
@@ -103,6 +108,7 @@ const Layout = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: -5rem;
     height: 100vh;
 `;
 
