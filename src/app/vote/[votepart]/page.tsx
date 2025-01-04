@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/useAuth";
 import { VOTE_CONTENT } from "@/app/constants/common";
 import Modal from "@/components/Modal";
+import Loading from "@/components/vote/Loading";
 
 interface ILeader {
   id: number;
@@ -27,7 +28,7 @@ export default function Page() {
 
   const { setMember, setVoteId, setCandidate, candidate } = useStore();
   const { username } = useAuthStore();
-  const { data: leaderData, isLoading: isLeaderLoading } = useQuery<
+  const { data: leaderData, isLoading: isLoading } = useQuery<
     ILeader[],
     Error,
     ILeader[],
@@ -116,10 +117,8 @@ export default function Page() {
             {params.votepart === "TEAM" ? "" : "파트장"} 투표
           </span>
         </Header>
-        {isLeaderLoading ? (
-          <LoadingContainer>
-            <LoadingText>로딩중...</LoadingText>
-          </LoadingContainer>
+        {isLoading ? (
+          <Loading /> // 로딩 컴포넌트 사용
         ) : (
           <TextContainer $votepart={params.votepart}>
             {/* {VOTE_CONTENT[params.votepart] */}
@@ -213,10 +212,10 @@ const Result = styled.button`
   background-color: transparent;
   border: 0.2rem solid #ff6c81;
   padding: 0.3rem;
-  color: white;
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
+    color: white;
   }
 
   @media (max-height: 500rem) {
@@ -225,15 +224,3 @@ const Result = styled.button`
   }
 `;
 
-//로딩
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
-
-const LoadingText = styled.h1`
-  color: #ff6c81;
-  font-size: 2rem;
-`;

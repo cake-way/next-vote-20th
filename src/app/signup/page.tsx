@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 
 import InputField from "@/components/signup/InputField";
@@ -14,15 +14,18 @@ import { apiRequest } from "../lib/api";
 const SignUp: React.FC = () => {
   const router = useRouter();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [passwordVisibility, setPasswordVisibility] = useState<{
-    [key: string]: boolean;
-  }>({
+  const [modalState, setModalState] = useState<{ isOpen: boolean, message: string }>({
+    isOpen: false,
+    message: "",
+  });
+
+  // 비밀번호 가시성 상태 관리
+  const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
     password: false,
     confirmPassword: false,
   });
 
+  // 폼 데이터 상태 관리
   const [formData, setFormData] = useState<Record<string, string>>({
     name: "",
     username: "",
@@ -37,36 +40,18 @@ const SignUp: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [isSignupSuccess, setIsSignupSuccess] = useState<boolean | null>(null);
 
+  // 클라이언트 확인 (useEffect 내에서만 실행되도록)
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true); // 클라이언트에서만 실행되도록 설정
   }, []);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "password" || name === "confirmPassword") {
-      validatePasswords(
-        formData.password,
-        formData.confirmPassword,
-        value,
-        name
-      );
-    }
-  };
-
-  const validatePasswords = (
-    password: string,
-    confirmPassword: string,
-    currentValue: string,
-    field: "password" | "confirmPassword"
-  ) => {
+  // 비밀번호 유효성 검사
+  const handlePasswordValidation = useCallback((password: string, currentValue: string, field: "password" | "confirmPassword") => {
     let errorMessage = "";
 
     if (field === "password") {
@@ -79,7 +64,24 @@ const SignUp: React.FC = () => {
         currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
       setErrorMessages((prev) => ({ ...prev, confirmPassword: errorMessage }));
     }
-  };
+  }, []);
+
+  // 입력 폼 변화 감지
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    // 입력값에 따라 formData 상태를 업데이트
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // 비밀번호 확인 필드가 비어 있으면 에러 메시지 지우기
+    if (name === "confirmPassword" && value === "") {
+      setErrorMessages((prev) => ({ ...prev, confirmPassword: "" }));
+    }
+
+    // 비밀번호와 비밀번호 확인에 대한 유효성 검사
+    if (name === "password" || name === "confirmPassword") {
+      handlePasswordValidation(formData.password, value, name);
+    }
+  }, [formData.password, handlePasswordValidation]);
 
   const handlePasswordToggle = (field: "password" | "confirmPassword") => {
     setPasswordVisibility((prev) => ({
@@ -88,73 +90,47 @@ const SignUp: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const {
-      password,
-      confirmPassword,
-      name,
+    const { password, name, username, email, selectedTeam, selectedPart } = formData;
+
+    const signupRequest = {
       username,
+      password,
       email,
-      selectedTeam,
-      selectedPart,
-    } = formData;
-
-    // 비밀번호 유효성 검사
-    const passwordError = validatePassword(password);
-
-    if (passwordError) {
-      alert(passwordError); // 유효성 오류 발생 시 경고
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
-      return;
-    }
-
+      name,
+      part: selectedPart.toUpperCase(),
+      team: selectedTeam.toUpperCase(),
+    };
+  
     try {
-      const signupRequest = {
-        username,
-        password,
-        email,
-        name,
-        part: selectedPart.toUpperCase(), // "FRONTEND"처럼 모두 대문자로 변환
-        team: selectedTeam.toUpperCase(), // "CAKEWAY"처럼 모두 대문자로 변환
-      };
+      const response = await apiRequest("auth", "POST", signupRequest, "signup");
 
-      const response = await apiRequest(
-        "auth",
-        "POST",
-        signupRequest,
-        "signup"
-      );
-
-      setModalMessage("signup complete!");
-      setIsModalOpen(true);
-      setIsSignupSuccess(true);
       console.log("회원가입 성공:", response);
-      // login 페이지에서 token 발급 받기 위함, 이것이 회원가입 시 발급 되면 별도의 페이지 이동 없이 token 발급 후 다른 api 요청 가능할 듯
-      // -> 추후 cakeway 협업에서는 이런 응답 내용에 있어 백과 소통 필요
+      setModalState({ isOpen: true, message: "회원가입 완료!" })
+      setIsSignupSuccess(true);
     } catch (error) {
       console.error("회원가입 실패:", error);
-      setModalMessage("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
-      setIsModalOpen(true);
+      
+      setModalState({ isOpen: true, message: "회원가입 도중 오류가 발생했습니다.\n 정보를 다시 확인해 주세요." })
       setIsSignupSuccess(false);
     }
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setModalState({ isOpen: false, message: "" })
 
     if (isSignupSuccess) {
       router.push("/login"); // 회원가입 성공 시 로그인 페이지로 이동
-    } else {
-      router.push("/"); // 회원가입 실패 시 홈 페이지로 이동
+    }
+    // 모달이 닫히고 난 후 페이지 새로고침 (Form 초기화 목적)
+    if (!isSignupSuccess) {
+      window.location.reload();
     }
   };
 
+  // 입력 필드 설정
   const inputFields = [
     { name: "name", type: "text", placeholder: "이름" },
     { name: "username", type: "text", placeholder: "아이디" },
@@ -173,6 +149,7 @@ const SignUp: React.FC = () => {
     { name: "email", type: "email", placeholder: "이메일 주소" },
   ];
 
+  // 셀렉트 필드 옵션 설정
   const selectOptions: { [key: string]: string[] } = {
     team: [
       "팀명 선택",
@@ -185,56 +162,50 @@ const SignUp: React.FC = () => {
     part: ["파트 선택", "FrontEnd", "BackEnd"],
   };
 
+  // 입력 필드에 전달할 props 객체 -> return 문에서는 스프레드 연산자 사용
+  const inputFieldProps = inputFields.map((field) => ({
+    name: field.name,
+    type: field.isPassword ? (passwordVisibility[field.name] ? "text" : "password") : field.type,
+    placeholder: field.placeholder,
+    value: formData[field.name],
+    onChange: handleInputChange,
+    errorMessage:
+      field.name === "password" ? errorMessages.password : field.name === "confirmPassword" ? errorMessages.confirmPassword : "",
+    isPassword: field.isPassword,
+    togglePasswordVisibility: () => handlePasswordToggle(field.name as "password" | "confirmPassword"),
+  }));
+
+  // 셀렉트 필드에 전달할 props 객체
+  const selectFieldProps = Object.keys(selectOptions).map((key) => ({
+    name: key === "team" ? "selectedTeam" : "selectedPart",
+    value: formData[key === "team" ? "selectedTeam" : "selectedPart"],
+    options: selectOptions[key],
+    onChange: handleInputChange,
+  }));
+
   if (!isClient) return null; // 클라이언트에서만 렌더링되도록 설정
 
+  const isFormValid = Object.values(formData).every((value) => value !== ""); // // formData의 값 중 하나라도 빈 문자열이면 회원가입 버튼 비활성화
+  const hasErrorMessages = errorMessages.password !== "" || errorMessages.confirmPassword !== ""; // errorMessages가 빈 문자열이 아니면 회원가입 버튼 비활성화
+  
   return (
     <Layout>
       <Title>회원가입</Title>
-      <FormContainer onSubmit={handleSubmit}>
-        {inputFields.map((field) => (
-          <InputField
-            key={field.name}
-            name={field.name}
-            type={
-              field.isPassword
-                ? passwordVisibility[field.name]
-                  ? "text"
-                  : "password"
-                : field.type
-            }
-            placeholder={field.placeholder}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            errorMessage={
-              field.name === "password"
-                ? errorMessages.password
-                : field.name === "confirmPassword"
-                ? errorMessages.confirmPassword
-                : ""
-            }
-            isPassword={field.isPassword}
-            togglePasswordVisibility={() =>
-              handlePasswordToggle(field.name as "password" | "confirmPassword")
-            }
-          />
+      <FormContainer onSubmit={handleSubmitForm}>
+        {inputFieldProps.map((props, index) => (
+          <InputField key={index} {...props} />  // key는 index로 설정
         ))}
 
-        {Object.keys(selectOptions).map((key) => (
-          <SelectField
-            key={key}
-            name={key === "team" ? "selectedTeam" : "selectedPart"}
-            value={formData[key === "team" ? "selectedTeam" : "selectedPart"]}
-            options={selectOptions[key]}
-            onChange={handleInputChange}
-          />
+        {selectFieldProps.map((props, index) => (
+          <SelectField key={index} {...props} /> 
         ))}
-
-        <Button type="submit">회원가입</Button>
-        <Modal
-          isOpen={isModalOpen}
-          message={modalMessage}
-          onClose={handleCloseModal}
-        />
+        <Button
+          type="submit"
+          disabled={!isFormValid || hasErrorMessages} // 상수로 관리된 값을 사용
+        >
+          회원가입
+        </Button>
+        <Modal isOpen={modalState.isOpen} message={modalState.message} onClose={handleCloseModal} />
       </FormContainer>
     </Layout>
   );

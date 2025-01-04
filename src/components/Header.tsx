@@ -11,7 +11,6 @@ const Header: React.FC = () => {
   const { username, isLoggedIn, logout } = useAuthStore(); // 전역 상태 가져오기
 
   const handleLogoutButtonClick = () => {
-    localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
     logout();
   };
 
