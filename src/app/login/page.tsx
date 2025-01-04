@@ -6,6 +6,7 @@ import styled from "styled-components";
 
 import { useAuthStore } from "@/stores/useAuth";
 import Modal from "@/components/Modal";
+import { handleError } from "@/utils/errorHandle";
 
 import { apiRequest } from "../lib/api";
 import { ApiResponse } from "./dto";
@@ -57,19 +58,17 @@ const Login: React.FC = () => {
       login(); // 로그인 상태로 변경
       setIsLoginSuccessful(true); // 로그인 성공 상태로 설정
 
-      // 로그인 성공 모달 표시
-      setModalState({ isOpen: true, message: "로그인 성공!" });
-    } catch (error) {
-      // 로그인 실패 처리
-      console.log("로그인 실패: ", error);
-      setModalState({
-        isOpen: true,
-        message: "아이디 또는 비밀번호를 다시 입력해 주세요.",
-      });
-      setUserName(""); // 입력 필드 초기화
-      setPassword(""); // 비밀번호 필드 초기화
-    }
-  };
+            // 로그인 성공 모달 표시
+            setModalState({ isOpen: true, message: "로그인 성공!" });
+        } 
+        catch (error) {
+            // 로그인 실패 처리
+            console.log("로그인 실패: ", error);
+            setModalState({ isOpen: true, message: handleError("login_failed")});
+            setUserName(""); // 입력 필드 초기화
+            setPassword(""); // 비밀번호 필드 초기화
+        }
+    };
 
   // 비밀번호 숨김 토글 버튼
   const toggleShowPassword = () => {
@@ -125,13 +124,12 @@ const Login: React.FC = () => {
 export default Login;
 
 const Layout = styled.div`
-  display: flex;
-  background-color: #ffffff;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: -5rem;
-  height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: -5rem;
+    height: 100vh;
 `;
 
 const Title = styled.h1`

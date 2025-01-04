@@ -7,6 +7,7 @@ import styled from "styled-components";
 import InputField from "@/components/signup/InputField";
 import SelectField from "@/components/signup/SelectField";
 import Modal from "@/components/Modal";
+import { handleError } from "@/utils/errorHandle";
 
 import { validatePassword } from "../lib/validate";
 import { apiRequest } from "../lib/api";
@@ -112,8 +113,7 @@ const SignUp: React.FC = () => {
       setIsSignupSuccess(true);
     } catch (error) {
       console.error("회원가입 실패:", error);
-      
-      setModalState({ isOpen: true, message: "회원가입 도중 오류가 발생했습니다.\n 정보를 다시 확인해 주세요." })
+      setModalState({ isOpen: true, message: handleError("signup_failed")})
       setIsSignupSuccess(false);
     }
   };
