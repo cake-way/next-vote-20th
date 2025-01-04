@@ -177,14 +177,14 @@ const Text = styled.p<{ $isActive: boolean }>`
   justify-content: center;
   flex: 1;
   text-align: center;
-  padding: 1rem;
+  padding: 1.4rem;
   background-color: ${({ $isActive }) => $isActive && "#ff6c81"};
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
   }
 
-  @media (min-width: 64rem) {
+  @media (max-width: 64rem) {
     padding: 1.2rem;
   }
   @media (max-width: 48rem) {

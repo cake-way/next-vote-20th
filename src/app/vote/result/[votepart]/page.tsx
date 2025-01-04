@@ -83,7 +83,7 @@ const Header = styled.h1`
 const Text = styled.p`
   border: 0.3rem solid #ff6c81;
   border-radius: 0.3rem;
-  padding: 2rem;
+  padding: 1.4rem;
   text-align: center;
   &:hover {
     background-color: #ff6c81;
@@ -91,7 +91,7 @@ const Text = styled.p`
   }
 
   @media (max-width: 64rem) {
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
   @media (max-width: 48rem) {
     padding: 1rem;
