@@ -22,7 +22,3 @@ export const getPartUrlName = (part: string, leader?: string | null) => {
 export const getToken = async () => {
   return localStorage.getItem("token");
 };
-
-export const gettoken = () => {
-  return localStorage.getItem("token");
-};
