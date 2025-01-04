@@ -1,11 +1,5 @@
 import { getToken } from "@/utils/utils";
 
-interface Votedata {
-  vote_id: number;
-  member: string;
-  candidate: string;
-}
-
 // 기본적인 fetch 요청 함수
 const fetchData = async (
   url: string,
@@ -107,20 +101,8 @@ export const fetchVoteResults = async (endpoint: string) => {
 };
 
 //파트장 투표하기 POST 요청
-export const fetchPostVote = async (
-  { vote_id, member, candidate }: Votedata,
-  endpoint: string
-) => {
-  const response = await apiRequest(
-    "vote",
-    "POST",
-    {
-      vote_id,
-      member,
-      candidate,
-    },
-    endpoint
-  );
+export const fetchPostVote = async (endpoint: string) => {
+  const response = await apiRequest("vote", "POST", null, endpoint);
   console.log("파트장투표하기 endpoint:" + endpoint);
 
   // if (!response.ok) {

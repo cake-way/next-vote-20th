@@ -8,6 +8,7 @@ import { getPartUrlName } from "@/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/useAuth";
 import { VOTE_CONTENT } from "@/app/constants/common";
+import Modal from "@/components/Modal";
 
 interface ILeader {
   id: number;
@@ -20,6 +21,8 @@ export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
   const [clicked, setClicked] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const { setMember, setVoteId, setCandidate, candidate } = useStore();
   const { username } = useAuthStore();
@@ -36,6 +39,12 @@ export default function Page() {
       );
       return response.data;
     },
+    // 아래 옵션들 추가
+    refetchOnWindowFocus: true, // 윈도우가 포커스를 받을 때 리페치
+    refetchInterval: 5000, // 5초마다 자동으로 리페치
+    staleTime: 0, // 데이터를 항상 stale로 간주
+    cacheTime: 0, // 캐시 사용하지 않음
+    enabled: true,
   }); //데이터 캐싱을 위해 tanstack query사용
 
   const onResultClick = (a: string) => {
@@ -47,8 +56,15 @@ export default function Page() {
   const onLeaderClicked = (name: string) => {
     setClicked(name);
   };
-
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   const onVoteCliced = async () => {
+    if (!clicked) {
+      setIsModalOpen(true);
+      setModalMessage("후보자를 선택해주세요!");
+      return;
+    }
     try {
       setMember(username); // 현재 유저로 바꾸기
       setCandidate(clicked);
@@ -70,14 +86,7 @@ export default function Page() {
       console.log(endpoint);
 
       // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
-      await fetchPostVote(
-        {
-          vote_id: newVoteId,
-          member: username,
-          candidate: clicked,
-        },
-        endpoint
-      );
+      await fetchPostVote(endpoint);
 
       console.log(
         "vote_id :" + newVoteId,
@@ -126,6 +135,11 @@ export default function Page() {
           </TextContainer>
         )}
       </Container>
+      <Modal
+        isOpen={isModalOpen}
+        message={modalMessage}
+        onClose={handleCloseModal}
+      />
     </>
   );
 }

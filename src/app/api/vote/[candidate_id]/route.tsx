@@ -8,7 +8,7 @@ export async function POST(
   const { candidate_id } = await params;
 
   try {
-    const { body } = await req.json();
+    // const { body } = await req.json();
     // 원본 요청에서 Authorization 헤더 가져오기
     const token = req.headers.get("Authorization");
 
@@ -29,7 +29,7 @@ export async function POST(
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify(body),
+      // body: JSON.stringify(body),
     });
 
     // 응답 상태 체크
