@@ -6,4 +6,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig; // CommonJS 방식으로 수정

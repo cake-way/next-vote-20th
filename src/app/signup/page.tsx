@@ -9,7 +9,6 @@ import SelectField from "@/components/signup/SelectField";
 import Modal from "@/components/Modal";
 import { handleError } from "@/utils/errorHandle";
 
-import { Button, FormContainer, Title } from "../login/page";
 import { validatePassword } from "../lib/validate";
 import { apiRequest } from "../lib/api";
 
@@ -55,14 +54,15 @@ const SignUp: React.FC = () => {
   // 비밀번호 유효성 검사
   const handlePasswordValidation = useCallback((password: string, currentValue: string, field: "password" | "confirmPassword") => {
     let errorMessage = "";
-  
+
     if (field === "password") {
       errorMessage = validatePassword(currentValue);
       setErrorMessages((prev) => ({ ...prev, password: errorMessage }));
     }
-  
+
     if (field === "confirmPassword") {
-      errorMessage = currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
+      errorMessage =
+        currentValue !== password ? "비밀번호가 일치하지 않습니다." : "";
       setErrorMessages((prev) => ({ ...prev, confirmPassword: errorMessage }));
     }
   }, []);
@@ -151,7 +151,14 @@ const SignUp: React.FC = () => {
 
   // 셀렉트 필드 옵션 설정
   const selectOptions: { [key: string]: string[] } = {
-    team: ["팀명 선택", "CakeWay", "페달지니", "PhotoGround", "커피딜", "엔젤브릿지"],
+    team: [
+      "팀명 선택",
+      "CakeWay",
+      "페달지니",
+      "PhotoGround",
+      "커피딜",
+      "엔젤브릿지",
+    ],
     part: ["파트 선택", "FrontEnd", "BackEnd"],
   };
 
@@ -207,12 +214,64 @@ const SignUp: React.FC = () => {
 export default SignUp;
 
 const Layout = styled.div`
-    display: flex;
-    background-color: #ffffff;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    align-items: center;
-    justify-content: center;
-    margin-top: -2rem;
+  display: flex;
+  background-color: #ffffff;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  margin-top: 1rem;
+`;
+
+const Button = styled.button`
+  width: 30%;
+  background-color: #ffffff;
+  padding: 0.8rem;
+  margin-top: 3rem;
+  color: black;
+  border: 0.125rem solid rgb(255, 108, 129);
+  border-radius: 0.9375rem;
+  font-size: 1rem;
+  cursor: pointer;
+  &:hover {
+    background-color: rgb(255, 108, 129);
+    color: #ffffff;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  @media (max-width: 48rem) {
+    width: 30%;
+    padding: 0.625rem;
+  }
+  @media (max-width: 29.6875rem) {
+    width: 40%;
+    padding: 0.4375rem;
+    margin-top: 1.875rem;
+    font-size: 0.8rem;
+  }
+`;
+
+const Title = styled.h1`
+  margin-bottom: 1.5rem;
+  @media (max-width: 64rem) {
+    font-size: 1.8rem;
+  }
+  @media (max-width: 48rem) {
+    font-size: 1.5rem;
+  }
+`;
+
+const FormContainer = styled.form`
+  padding: 4.375rem 3rem 1.25rem 3rem;
+  border-radius: 1.25rem;
+  border: 0.1875rem solid rgb(255, 108, 129);
+  text-align: center;
+  width: 37.5rem; /* 기본 고정 너비 */
+  @media (max-width: 37.5rem) {
+    width: 90%; /* 600px 이하에서 화면 크기에 따라 유동적으로 줄어듦 */
+    padding: 3.125rem 1.875rem 1rem 1.875rem; /* 여백 유지 */
+  }
+  @media (max-width: 25rem) {
+    width: 80%; /* 400px 이하에서 더 작아짐 */
+    padding: 2.5rem 1.25rem 0.75rem 1.25rem; /* 여백도 줄어듦 */
+  }
 `;
