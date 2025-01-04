@@ -58,7 +58,7 @@ export const apiRequest = async (
       break;
 
     case "demodayVote":
-      baseUrl = "/api/demoday";
+      baseUrl = "/api/vote/demoday";
       break;
     case "results":
       baseUrl = "/api/results";
@@ -100,9 +100,14 @@ export const fetchVoteResults = async (endpoint: string) => {
   }
 };
 
-//파트장 투표하기 POST 요청
-export const fetchPostVote = async (endpoint: string) => {
-  const response = await apiRequest("vote", "POST", null, endpoint);
+//파트장, 데모데이 투표하기 POST 요청
+export const fetchPostVote = async (endpoint: string, demoday: boolean) => {
+  const response = await apiRequest(
+    demoday ? "demodayVote" : "vote",
+    "POST",
+    null,
+    endpoint
+  );
   console.log("파트장투표하기 endpoint:" + endpoint);
 
   // if (!response.ok) {

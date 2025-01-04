@@ -12,7 +12,8 @@ import Modal from "@/components/Modal";
 
 interface ILeader {
   id: number;
-  name: string;
+  name?: string;
+  team?: string;
 }
 
 type VoteQueryKey = ["leader", string, string];
@@ -43,9 +44,11 @@ export default function Page() {
     refetchOnWindowFocus: true, // 윈도우가 포커스를 받을 때 리페치
     refetchInterval: 5000, // 5초마다 자동으로 리페치
     staleTime: 0, // 데이터를 항상 stale로 간주
-    cacheTime: 0, // 캐시 사용하지 않음
+
     enabled: true,
   }); //데이터 캐싱을 위해 tanstack query사용
+  const demoday = params.votepart === "TEAM";
+  console.log(demoday);
 
   const onResultClick = (a: string) => {
     router.push(`result/${a}`);
@@ -59,6 +62,7 @@ export default function Page() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
   const onVoteCliced = async () => {
     if (!clicked) {
       setIsModalOpen(true);
@@ -82,11 +86,11 @@ export default function Page() {
           clicked as keyof (typeof VOTE_CONTENT)[typeof params.votepart]
         ]
       );
-
+      console.log("clicked:" + clicked);
       console.log(endpoint);
 
       // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
-      await fetchPostVote(endpoint);
+      await fetchPostVote(endpoint, demoday);
 
       console.log(
         "vote_id :" + newVoteId,
@@ -119,13 +123,13 @@ export default function Page() {
         ) : (
           <TextContainer $votepart={params.votepart}>
             {/* {VOTE_CONTENT[params.votepart] */}
-            {leaderData?.map((prop: { id: number; name: string }) => (
+            {leaderData?.map((prop: ILeader) => (
               <Text
-                onClick={() => onLeaderClicked(prop.name)}
+                onClick={() => onLeaderClicked(prop.name || prop.team || "")} //
                 key={prop.id}
-                $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
+                $isActive={clicked === (prop.name || prop.team)} //$를 사용해야 p dom요소에 전달이 안됨
               >
-                {prop.name}
+                {demoday ? prop.team : prop.name}
               </Text>
             ))}
             <Result onClick={onVoteCliced}>투표하기</Result>
@@ -177,14 +181,14 @@ const Text = styled.p<{ $isActive: boolean }>`
   justify-content: center;
   flex: 1;
   text-align: center;
-  padding: 1rem;
+  padding: 1.4rem;
   background-color: ${({ $isActive }) => $isActive && "#ff6c81"};
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;
   }
 
-  @media (min-width: 64rem) {
+  @media (max-width: 64rem) {
     padding: 1.2rem;
   }
   @media (max-width: 48rem) {

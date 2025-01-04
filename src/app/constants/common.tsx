@@ -1,35 +1,35 @@
 export enum BECandidates {
-  나혜인, // 0
-  유지민, // 1
-  황서아, // 2
-  임가현, // 3
-  최서지, // 4
-  김연수, // 5
-  이채원, // 6
-  이한슬, // 7
-  남승현, // 8
-  문서영, // 9
+  나혜인 = 11, // 0
+  유지민 = 12, // 1
+  황서아 = 13, // 2
+  임가현 = 14, // 3
+  최서지 = 15, // 4
+  김연수 = 16, // 5
+  이채원 = 17, // 6
+  이한슬 = 18, // 7
+  남승현 = 19, // 8
+  문서영 = 20, // 9
 }
 
 export enum FECandidates {
-  이희원, // 0
-  최지원, // 1
-  지민재, // 2
-  김류원, // 3
-  송유선, // 4
-  강다혜, // 5
-  권혜인, // 6
-  이가빈, // 7
-  박지수, // 8
-  윤영준, // 9
+  윤영준 = 10,
+  이희원 = 1,
+  최지원 = 2,
+  지민재 = 3,
+  김류원 = 4,
+  송유선 = 5,
+  강다혜 = 6,
+  권혜인 = 7,
+  이가빈 = 8,
+  박지수 = 9,
 }
 
 export enum demoday {
-  PHOTOGROUND,
-  ANGELBRIDGE,
-  PEDALGENIE,
-  CAKEWAY,
-  COFFEEDILL,
+  PHOTOGROUND = 1,
+  ANGELBRIDGE = 2,
+  PEDALGENIE = 3,
+  CAKEWAY = 4,
+  COFFEEDILL = 5,
 }
 
 export const VOTE_CONTENT = {
