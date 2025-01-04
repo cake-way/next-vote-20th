@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { candidate_id: string } }
+  { params }: { params: { demoCandi_id: string } }
 ) {
-  const { candidate_id } = await params;
+  const { demoCandi_id } = await params;
+
   try {
     const token = req.headers.get("Authorization");
 
@@ -17,8 +18,9 @@ export async function POST(
       );
     }
 
-    const url = `${BACKEND_URL}/demoday/${candidate_id}`;
+    const url = `${BACKEND_URL}/demoday/${demoCandi_id}`;
     console.log(url);
+    console.log(demoCandi_id);
 
     const response = await fetch(url, {
       method: "POST",
@@ -29,7 +31,20 @@ export async function POST(
       // body: JSON.stringify(body),
     });
 
-    const data = response.json();
+    // 응답 내용 먼저 텍스트로 받기
+    const responseText = await response.text();
+    console.log("Raw response:", responseText);
+
+    // 응답이 비어있지 않은 경우에만 JSON 파싱
+    const data = responseText ? JSON.parse(responseText) : {};
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Backend request failed", details: data },
+        { status: response.status }
+      );
+    }
+
     return NextResponse.json(data);
   } catch (error) {
     console.log(error);

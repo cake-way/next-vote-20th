@@ -85,7 +85,7 @@ export default function Page() {
           clicked as keyof (typeof VOTE_CONTENT)[typeof params.votepart]
         ]
       );
-
+      console.log("clicked:" + clicked);
       console.log(endpoint);
 
       // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
