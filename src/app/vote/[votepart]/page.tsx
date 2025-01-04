@@ -44,10 +44,11 @@ export default function Page() {
     refetchOnWindowFocus: true, // 윈도우가 포커스를 받을 때 리페치
     refetchInterval: 5000, // 5초마다 자동으로 리페치
     staleTime: 0, // 데이터를 항상 stale로 간주
-    cacheTime: 0, // 캐시 사용하지 않음
+
     enabled: true,
   }); //데이터 캐싱을 위해 tanstack query사용
   const demoday = params.votepart === "TEAM";
+  console.log(demoday);
 
   const onResultClick = (a: string) => {
     router.push(`result/${a}`);

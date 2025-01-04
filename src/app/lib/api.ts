@@ -103,7 +103,7 @@ export const fetchVoteResults = async (endpoint: string) => {
 //파트장, 데모데이 투표하기 POST 요청
 export const fetchPostVote = async (endpoint: string, demoday: boolean) => {
   const response = await apiRequest(
-    `${demoday}` ? "demodayVote" : "vote",
+    demoday ? "demodayVote" : "vote",
     "POST",
     null,
     endpoint
