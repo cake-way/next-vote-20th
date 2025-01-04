@@ -3,9 +3,9 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest, // Request로 변경
-  context: { params: { part: string } }
-) {
-  const { part } = context.params;
+  { params }: { params: { part: string } }
+): Promise<NextResponse> {
+  const { part } = params;
 
   const { headers } = request;
   const token = headers.get("Authorization");
