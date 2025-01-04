@@ -2,35 +2,57 @@
 import styled from "styled-components";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Modal from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
+  const token = localStorage.getItem("token");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const onClick = (part: string) => {
+    if (!token) {
+      setIsModalOpen(true);
+      setModalMessage("로그인 후 투표가 가능해요!");
+      return;
+    }
     router.push(`/vote/${part}`);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    router.push("/login");
+  };
+
   return (
-    <Container>
-      <Header>파트장/ 데모데이 투표</Header>
-      <TextContainer>
-        <Text onClick={() => onClick("FE")}>
-          FE 파트장 투표
-          <br />
-          바로가기
-        </Text>
-        <Text onClick={() => onClick("BE")}>
-          BE 파트장 투표
-          <br />
-          바로가기
-        </Text>
-        <Text onClick={() => onClick("TEAM")}>
-          데모데이 투표
-          <br />
-          바로가기
-        </Text>
-      </TextContainer>
-    </Container>
+    <>
+      <Container>
+        <Header>파트장/ 데모데이 투표</Header>
+        <TextContainer>
+          <Text onClick={() => onClick("FE")}>
+            FE 파트장 투표
+            <br />
+            바로가기
+          </Text>
+          <Text onClick={() => onClick("BE")}>
+            BE 파트장 투표
+            <br />
+            바로가기
+          </Text>
+          <Text onClick={() => onClick("TEAM")}>
+            데모데이 투표
+            <br />
+            바로가기
+          </Text>
+        </TextContainer>
+      </Container>
+      <Modal
+        isOpen={isModalOpen}
+        message={modalMessage}
+        onClose={handleCloseModal}
+      />
+    </>
   );
 }
 
@@ -40,7 +62,7 @@ const Container = styled.div`
 
   margin-top: 9.375rem;
   @media (max-height: 50rem) {
-    margin-top: 1.875rem; 
+    margin-top: 1.875rem;
   }
 
   flex-direction: column;
@@ -51,7 +73,7 @@ const Header = styled.h1`
   margin-bottom: 2rem;
 
   @media (max-width: 48rem) {
-    font-size: 1.6rem; 
+    font-size: 1.6rem;
   }
   @media (max-width: 29.6875rem) {
     font-size: 1.3rem;
@@ -71,9 +93,9 @@ const Text = styled.p`
     background-color: #ff6c81;
     transition: 0.2s;
   }
-    
+
   @media (max-width: 48rem) {
-    padding: 1.5rem; 
+    padding: 1.5rem;
   }
   @media (max-width: 29.6875rem) {
     padding: 1rem;
