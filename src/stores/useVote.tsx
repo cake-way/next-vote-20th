@@ -1,20 +1,22 @@
 import { create } from "zustand";
+
+//투표정보는 전역상태관리를 사용할 필요가 없으나
+//zustand 연습해보려구사용했습니다..ㅎ
 interface StoreState {
-  vote_id: string;
-  user_id: string;
-  leader_id: string;
-  setVoteId: (toLocaleDateString: string) => void;
-  setUserId: (id: string) => void;
-  setLeaderId: (id: string) => void;
+  vote_id: number;
+  member: string;
+  candidate: string;
+  setVoteId: (timestamp: number) => void;
+  setMember: (id: string) => void;
+  setCandidate: (id: string) => void;
 }
 
 export const useStore = create<StoreState>((set) => ({
-  vote_id: "2024. 12. 30.",
-  user_id: "",
-  leader_id: "",
+  vote_id: new Date("2024-12-30").getTime(),
+  member: "",
+  candidate: "",
 
-  setVoteId: (toLocaleDateString: string) =>
-    set({ vote_id: toLocaleDateString }),
-  setUserId: (id: string) => set({ user_id: id }),
-  setLeaderId: (id: string) => set({ leader_id: id }),
+  setVoteId: (timestamp: number) => set({ vote_id: timestamp }),
+  setMember: (id: string) => set({ member: id }),
+  setCandidate: (id: string) => set({ candidate: id }),
 }));

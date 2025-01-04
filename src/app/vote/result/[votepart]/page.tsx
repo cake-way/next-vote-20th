@@ -33,6 +33,7 @@ export default function Page() {
     router.push("/");
   };
 
+  //득표율
   return (
     <Container>
       <Header>
@@ -113,6 +114,7 @@ const Result = styled.button`
   background-color: transparent;
   border: 0.2rem solid #ff6c81;
   padding: 0.3rem;
+  color: white;
   &:hover {
     background-color: #ff6c81;
     transition: 0.2s;

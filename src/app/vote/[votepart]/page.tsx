@@ -6,33 +6,37 @@ import { useState } from "react";
 import { fetchGetLeader, fetchPostVote } from "@/app/lib/api";
 import { getPartUrlName } from "@/utils/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/useAuth";
+import { VOTE_CONTENT } from "@/app/constants/common";
 
 interface ILeader {
   id: number;
   name: string;
 }
 
-type VoteQueryKey = ["leader", string];
+type VoteQueryKey = ["leader", string, string];
 
 export default function Page() {
   const params = useParams<{ votepart: "FE" | "BE" | "TEAM" }>();
   const router = useRouter();
   const [clicked, setClicked] = useState("");
 
-  const { setUserId, setVoteId, setLeaderId, user_id, leader_id } = useStore();
-  const { data, isLoading } = useQuery<
+  const { setMember, setVoteId, setCandidate, candidate } = useStore();
+  const { username } = useAuthStore();
+  const { data: leaderData, isLoading: isLeaderLoading } = useQuery<
     ILeader[],
     Error,
     ILeader[],
     VoteQueryKey
   >({
-    queryKey: ["leader", params.votepart],
+    queryKey: ["leader", params.votepart, "leader"],
     queryFn: async () => {
-      const response = await fetchGetLeader(getPartUrlName(params.votepart));
+      const response = await fetchGetLeader(
+        getPartUrlName(params.votepart, "leader")
+      );
       return response.data;
     },
-  });
-  console.log(data);
+  }); //데이터 캐싱을 위해 tanstack query사용
 
   const onResultClick = (a: string) => {
     router.push(`result/${a}`);
@@ -45,19 +49,41 @@ export default function Page() {
   };
 
   const onVoteCliced = async () => {
-    console.log("user_id:" + user_id, "leader_id:" + leader_id);
     try {
-      setUserId("지민재"); // 현재 유저로 바꾸기
-      setLeaderId(clicked);
-      const newVoteId = new Date().toLocaleDateString();
+      setMember(username); // 현재 유저로 바꾸기
+      setCandidate(clicked);
+      const newVoteId = new Date().getTime();
       setVoteId(newVoteId);
 
+      console.log(
+        "vote_id :" + newVoteId,
+        "member :" + username,
+        "leader:" + clicked
+      );
+
+      const endpoint = String(
+        VOTE_CONTENT[params.votepart][
+          clicked as keyof (typeof VOTE_CONTENT)[typeof params.votepart]
+        ]
+      );
+
+      console.log(endpoint);
+
       // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
-      await fetchPostVote({
-        vote_id: newVoteId,
-        user_id: "지민재", // 하드코딩된 값 사용
-        leader_id: clicked,
-      });
+      await fetchPostVote(
+        {
+          vote_id: newVoteId,
+          member: username,
+          candidate: clicked,
+        },
+        endpoint
+      );
+
+      console.log(
+        "vote_id :" + newVoteId,
+        "member :" + username,
+        "leader:" + candidate
+      );
 
       router.push(`result/${params.votepart}`);
     } catch (error) {
@@ -67,9 +93,6 @@ export default function Page() {
   };
 
   //결과화면이랑 중복되는건 컴포넌트로 만들기
-  if (isLoading) {
-    return;
-  }
   return (
     <>
       <Container>
@@ -80,14 +103,14 @@ export default function Page() {
             {params.votepart === "TEAM" ? "" : "파트장"} 투표
           </span>
         </Header>
-        {isLoading ? (
+        {isLeaderLoading ? (
           <LoadingContainer>
             <LoadingText>로딩중...</LoadingText>
           </LoadingContainer>
         ) : (
           <TextContainer $votepart={params.votepart}>
             {/* {VOTE_CONTENT[params.votepart] */}
-            {data?.map((prop: { id: number; name: string }) => (
+            {leaderData?.map((prop: { id: number; name: string }) => (
               <Text
                 onClick={() => onLeaderClicked(prop.name)}
                 key={prop.id}

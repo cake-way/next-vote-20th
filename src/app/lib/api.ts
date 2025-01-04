@@ -1,9 +1,9 @@
 import { getToken } from "@/utils/utils";
 
 interface Votedata {
-  vote_id: string;
-  user_id: string;
-  leader_id: string;
+  vote_id: number;
+  member: string;
+  candidate: string;
 }
 
 // 기본적인 fetch 요청 함수
@@ -13,7 +13,7 @@ const fetchData = async (
   body: Record<string, unknown> | null = null
 ) => {
   console.log("Fetch called with:", { url, method, body });
-
+  console.log("Request URL:", url);
   const token = await getToken();
 
   const options: RequestInit = {
@@ -27,10 +27,11 @@ const fetchData = async (
   if (method !== "GET" && body) {
     options.body = JSON.stringify(body);
   }
-
+  console.log(body);
   const response = await fetch(url, options);
 
   console.log("Response status:", response.status);
+  // console.log("data:" + (await response.json()));
 
   if (!response.ok) {
     // 응답에 에러 정보가 있는지 확인
@@ -61,6 +62,10 @@ export const apiRequest = async (
     case "vote":
       baseUrl = "/api/vote";
       break;
+
+    case "demodayVote":
+      baseUrl = "/api/demoday";
+      break;
     case "results":
       baseUrl = "/api/results";
       break;
@@ -73,6 +78,8 @@ export const apiRequest = async (
 
   // 완전한 URL 생성 (baseUrl + endpoint)
   const fullUrl = endpoint ? `${baseUrl}/${endpoint}` : baseUrl;
+  console.log("fullUrl t:" + fullUrl);
+  console.log("fullUrl endpoint:" + endpoint);
 
   // 메서드에 따른 처리
   if (method === "POST") {
@@ -99,23 +106,30 @@ export const fetchVoteResults = async (endpoint: string) => {
   }
 };
 
-//투표하기 POST 요청
-export const fetchPostVote = async ({
-  vote_id,
-  user_id,
-  leader_id,
-}: Votedata) => {
-  const response = await apiRequest("vote", "POST", {
-    vote_id,
-    user_id,
-    leader_id,
-  });
+//파트장 투표하기 POST 요청
+export const fetchPostVote = async (
+  { vote_id, member, candidate }: Votedata,
+  endpoint: string
+) => {
+  const response = await apiRequest(
+    "vote",
+    "POST",
+    {
+      vote_id,
+      member,
+      candidate,
+    },
+    endpoint
+  );
+  console.log("파트장투표하기 endpoint:" + endpoint);
 
-  if (!response.ok) {
-    throw new Error(`${response.errorCode} 투표 중 오류가 발생했습니다`);
-  }
+  // if (!response.ok) {
+  //   throw new Error(`${response.errorCode} 투표 중 오류가 발생했습니다`);
+  // }
   return response;
 };
+
+//
 
 //후보자 조회
 export const fetchGetLeader = async (endpoint: string) => {

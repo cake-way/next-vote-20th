@@ -46,6 +46,9 @@ export async function GET(
     }
 
     const data = await results.json();
+
+    console.log("Route response data:", data);
+
     return NextResponse.json({ success: true, data: data });
   } catch (error) {
     console.log(error);

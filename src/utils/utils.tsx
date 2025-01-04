@@ -1,6 +1,6 @@
 "use client";
 
-export const getPartUrlName = (part: string) => {
+export const getPartUrlName = (part: string, leader?: string | null) => {
   switch (part) {
     case "FE":
       return "FRONTEND";
@@ -9,7 +9,11 @@ export const getPartUrlName = (part: string) => {
       return "BACKEND";
 
     case "TEAM":
-      return "demoday";
+      if (leader) {
+        return "team";
+      } else {
+        return "demoday";
+      }
     default:
       return "";
   }
