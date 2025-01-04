@@ -7,11 +7,26 @@ export async function POST(
 ) {
   const { candidate_id } = await params;
   try {
-    const { body } = await req.json();
+    const token = req.headers.get("Authorization");
+
+    if (!token) {
+      console.error("Authorization header is missing");
+      return NextResponse.json(
+        { error: "Unauthorized: No token provided" },
+        { status: 401 }
+      );
+    }
+
     const url = `${BACKEND_URL}/demoday/${candidate_id}`;
+    console.log(url);
 
     const response = await fetch(url, {
-      body: body,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      // body: JSON.stringify(body),
     });
 
     const data = response.json();

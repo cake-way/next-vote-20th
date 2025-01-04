@@ -12,7 +12,8 @@ import Modal from "@/components/Modal";
 
 interface ILeader {
   id: number;
-  name: string;
+  name?: string;
+  team?: string;
 }
 
 type VoteQueryKey = ["leader", string, string];
@@ -46,6 +47,7 @@ export default function Page() {
     cacheTime: 0, // 캐시 사용하지 않음
     enabled: true,
   }); //데이터 캐싱을 위해 tanstack query사용
+  const demoday = params.votepart === "TEAM";
 
   const onResultClick = (a: string) => {
     router.push(`result/${a}`);
@@ -59,6 +61,7 @@ export default function Page() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
   const onVoteCliced = async () => {
     if (!clicked) {
       setIsModalOpen(true);
@@ -86,7 +89,7 @@ export default function Page() {
       console.log(endpoint);
 
       // 상태변화는 비동기라서,, 직접값사용 이방법 외 다른 방법이 있나?
-      await fetchPostVote(endpoint);
+      await fetchPostVote(endpoint, demoday);
 
       console.log(
         "vote_id :" + newVoteId,
@@ -119,13 +122,13 @@ export default function Page() {
         ) : (
           <TextContainer $votepart={params.votepart}>
             {/* {VOTE_CONTENT[params.votepart] */}
-            {leaderData?.map((prop: { id: number; name: string }) => (
+            {leaderData?.map((prop: ILeader) => (
               <Text
-                onClick={() => onLeaderClicked(prop.name)}
+                onClick={() => onLeaderClicked(prop.name || prop.team || "")} //
                 key={prop.id}
-                $isActive={clicked === prop.name} //$를 사용해야 p dom요소에 전달이 안됨
+                $isActive={clicked === (prop.name || prop.team)} //$를 사용해야 p dom요소에 전달이 안됨
               >
-                {prop.name}
+                {demoday ? prop.team : prop.name}
               </Text>
             ))}
             <Result onClick={onVoteCliced}>투표하기</Result>
