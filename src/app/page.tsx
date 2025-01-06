@@ -17,18 +17,18 @@ export default function Home() {
     if (userString) {
       // 문자열을 객체로 파싱
       const user = JSON.parse(userString);
-      setUser(user.isLoggedIn);
-    } else {
-      setUser(false); // 저장된 데이터가 없는 경우
+      setUser(user.state.isLoggedIn);
     }
   }, []);
 
   const onClick = (part: string) => {
     if (!user) {
+      console.log(user);
       setIsModalOpen(true);
       setModalMessage("로그인 후 투표가 가능해요!");
       return;
     }
+
     router.push(`/vote/${part}`);
   };
 
