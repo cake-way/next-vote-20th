@@ -7,14 +7,20 @@ import Modal from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     // 클라이언트 측에서만 localStorage 접근
-    const user = localStorage.getItem("loggedUserInfo");
-    setUser(user);
+    const userString = localStorage.getItem("loggedUserInfo");
+    if (userString) {
+      // 문자열을 객체로 파싱
+      const user = JSON.parse(userString);
+      setUser(user.isLoggedIn);
+    } else {
+      setUser(false); // 저장된 데이터가 없는 경우
+    }
   }, []);
 
   const onClick = (part: string) => {
